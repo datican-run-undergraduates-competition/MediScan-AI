@@ -145,7 +145,7 @@ This makes it a **powerful showcase** of AI's role in **next-generation healthca
 ## 🧑‍💻 Team
 - Olokor Samuel Oroghene – Backend & Frontend Developer, Project Coordinator
 
-- Emmanuel OLuyemi– Backend and ML Engineer
+- Emmanuel Oluyemi– Backend and ML Engineer
 
 ## 📜 License
 This project is licensed under the MIT License.
@@ -157,7 +157,7 @@ We would like to thank the following individuals and resources for making this p
 - **Our Project Team** – for their dedication in developing, training, designing, and testing the entire system.
 - **RUNACOSS** and **DATICAN** for Organizing this Competition.
 - **The Gale Encyclopedia of Medicine (Second Edition)** – our primary data source for training the AI model with medically accurate information.
-- **Redemmer's University** 
+- **Redeemer's University** 
 > *This project would not be possible without the spirit of collaboration, open-source technology, and a shared passion for innovation in healthcare.*
 
 
