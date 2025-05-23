@@ -1,0 +1,29 @@
+{
+  "name": "xray_classifier_example",
+  "type": "classification",
+  "framework": "pytorch",
+  "version": "1.0.0",
+  "input_shape": [1, 1, 224, 224],
+  "output_shape": [1, 14],
+  "modality": "xray",
+  "labels": {
+    "0": "No Finding",
+    "1": "Atelectasis",
+    "2": "Cardiomegaly",
+    "3": "Consolidation",
+    "4": "Edema",
+    "5": "Effusion",
+    "6": "Emphysema",
+    "7": "Fibrosis",
+    "8": "Hernia",
+    "9": "Infiltration",
+    "10": "Mass",
+    "11": "Nodule",
+    "12": "Pleural_Thickening",
+    "13": "Pneumonia"
+  },
+  "preprocessing": {
+    "normalize": true,
+    "target_size": [224, 224]
+  }
+}

@@ -1,0 +1,61 @@
+# Core dependencies
+fastapi>=0.95.0
+uvicorn>=0.22.0
+sqlalchemy>=2.0.0
+pydantic>=2.0.0
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+python-multipart>=0.0.6
+email-validator>=2.0.0
+python-dotenv>=1.0.0
+databases[sqlite]>=0.7.0
+
+# ML dependencies
+numpy>=1.24.0
+torch>=2.0.0
+tensorflow>=2.12.0
+opencv-python>=4.7.0
+pillow>=9.5.0
+scikit-learn>=1.2.2
+pydicom>=2.3.1
+
+# Optional: MONAI for medical imaging
+monai>=1.2.0
+
+# Optional: ONNX for model interoperability
+onnx>=1.14.0
+onnxruntime>=1.15.0
+
+# Voice and chatbot dependencies
+SpeechRecognition>=3.10.0
+pyttsx3>=2.90
+gTTS>=2.3.2
+PyAudio>=0.2.13
+
+# Testing
+pytest>=7.3.1
+httpx>=0.24.0
+
+# Security
+pyotp==2.9.0
+secure==0.3.0
+pyjwt==2.8.0
+itsdangerous==2.1.2
+cryptography==41.0.5
+
+# Machine Learning & Data Processing
+torchvision==0.16.0
+alembic==1.12.1
+scikit-image==0.22.0
+pandas==2.1.2
+
+# NLP
+transformers==4.35.0
+sentence-transformers==2.2.2
+
+# PDF Generation
+reportlab==4.0.7
+PyPDF2==3.0.1
+
+# Utilities
+pytest==7.4.3 
