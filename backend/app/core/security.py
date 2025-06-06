@@ -13,6 +13,10 @@ from pydantic import BaseModel, EmailStr
 from dotenv import load_dotenv
 import pyotp
 import base64
+from ..models.user import User
+from ..core.config import settings
+from sqlalchemy.orm import Session
+from ..db.session import get_db
 
 # Load environment variables
 load_dotenv()
@@ -27,7 +31,7 @@ REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # OAuth2 scheme
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 # Rate limiting
 RATE_LIMIT_DURATION = 60  # seconds
@@ -55,13 +59,11 @@ class TwoFactorSetup(BaseModel):
     uri: str
 
 # Password verification
-def verify_password(plain_password, hashed_password):
+def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 # Password hashing
-def get_password_hash(password):
-    if not validate_password(password):
-        raise ValueError("Password does not meet security requirements")
+def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 # Password validation
@@ -80,15 +82,15 @@ def validate_password(password: str) -> bool:
     return bool(PASSWORD_REGEX.match(password))
 
 # Create access token
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt, expire
+    return encoded_jwt
 
 # Create refresh token
 def create_refresh_token(data: dict):
@@ -155,7 +157,10 @@ async def rate_limiter(request: Request):
     rate_limit_data[client_ip].append(now)
 
 # Get current user from token
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -163,20 +168,22 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        email: str = payload.get("sub")
+        if email is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
     
-    # In a real application, you would fetch the user from the database here
-    # For now, we just return the username
-    return {"username": token_data.username}
+    user = db.query(User).filter(User.email == email).first()
+    if user is None:
+        raise credentials_exception
+    return user
 
 # Get current active user
-async def get_current_active_user(current_user = Depends(get_current_user)):
-    if not current_user:
+async def get_current_active_user(
+    current_user: User = Depends(get_current_user)
+) -> User:
+    if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
@@ -206,4 +213,10 @@ def validate_csrf_token(request_token: str, session_token: str) -> bool:
     """Validate the CSRF token from the request against the session token."""
     if not request_token or not session_token:
         return False
-    return secrets.compare_digest(request_token, session_token) 
+    return secrets.compare_digest(request_token, session_token)
+
+async def is_admin(current_user: User = Depends(get_current_user)) -> bool:
+    """
+    Check if the current user is an admin
+    """
+    return current_user.role == "admin" 

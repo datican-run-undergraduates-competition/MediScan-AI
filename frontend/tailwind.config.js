@@ -1,169 +1,175 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        // Use CSS variables for colors to support dynamic themes
-        background: 'var(--color-background)',
-        foreground: 'var(--color-foreground)',
-        primary: 'var(--color-primary)',
-        secondary: 'var(--color-secondary)',
-        accent: 'var(--color-accent)',
-        error: 'var(--color-error)',
-        success: 'var(--color-success)',
-        warning: 'var(--color-warning)',
-        info: 'var(--color-info)',
-        surface: 'var(--color-surface)',
-        border: 'var(--color-border)',
+        primary: {
+          50: '#f0f9ff',
+          100: '#e0f2fe',
+          200: '#bae6fd',
+          300: '#7dd3fc',
+          400: '#38bdf8',
+          500: '#0ea5e9',
+          600: '#0284c7',
+          700: '#0369a1',
+          800: '#075985',
+          900: '#0c4a6e',
+          950: '#082f49',
+        },
+        secondary: {
+          50: '#f5f3ff',
+          100: '#ede9fe',
+          200: '#ddd6fe',
+          300: '#c4b5fd',
+          400: '#a78bfa',
+          500: '#8b5cf6',
+          600: '#7c3aed',
+          700: '#6d28d9',
+          800: '#5b21b6',
+          900: '#4c1d95',
+          950: '#2e1065',
+        },
+        success: {
+          50: '#f0fdf4',
+          100: '#dcfce7',
+          200: '#bbf7d0',
+          300: '#86efac',
+          400: '#4ade80',
+          500: '#22c55e',
+          600: '#16a34a',
+          700: '#15803d',
+          800: '#166534',
+          900: '#14532d',
+          950: '#052e16',
+        },
+        warning: {
+          50: '#fffbeb',
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#fbbf24',
+          500: '#f59e0b',
+          600: '#d97706',
+          700: '#b45309',
+          800: '#92400e',
+          900: '#78350f',
+          950: '#451a03',
+        },
+        error: {
+          50: '#fef2f2',
+          100: '#fee2e2',
+          200: '#fecaca',
+          300: '#fca5a5',
+          400: '#f87171',
+          500: '#ef4444',
+          600: '#dc2626',
+          700: '#b91c1c',
+          800: '#991b1b',
+          900: '#7f1d1d',
+          950: '#450a0a',
+        },
       },
       fontFamily: {
-        sans: [
-          'Inter var',
-          'Inter',
-          'system-ui',
-          '-apple-system',
-          'BlinkMacSystemFont',
-          'Segoe UI',
-          'Roboto',
-          'Helvetica Neue',
-          'Arial',
-          'sans-serif',
-        ],
-        mono: [
-          'JetBrains Mono',
-          'Menlo',
-          'Monaco',
-          'Consolas',
-          'Liberation Mono',
-          'Courier New',
-          'monospace',
-        ],
+        sans: ['var(--font-inter)'],
+        display: ['var(--font-cabinet-grotesk)'],
       },
       fontSize: {
-        // Use CSS variable for base font size to support dynamic text size
-        base: 'var(--font-size-base, 16px)',
-      },
-      lineHeight: {
-        // Use CSS variable for base line height to support dynamic text size
-        base: 'var(--line-height-base, 1.5)',
-      },
-      screens: {
-        'xs': '480px',
-        'sm': '640px',
-        'md': '768px',
-        'lg': '1024px',
-        'xl': '1280px',
-        '2xl': '1536px',
+        '2xs': ['0.625rem', { lineHeight: '0.75rem' }],
+        xs: ['0.75rem', { lineHeight: '1rem' }],
+        sm: ['0.875rem', { lineHeight: '1.25rem' }],
+        base: ['1rem', { lineHeight: '1.5rem' }],
+        lg: ['1.125rem', { lineHeight: '1.75rem' }],
+        xl: ['1.25rem', { lineHeight: '1.75rem' }],
+        '2xl': ['1.5rem', { lineHeight: '2rem' }],
+        '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+        '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+        '5xl': ['3rem', { lineHeight: '1' }],
+        '6xl': ['3.75rem', { lineHeight: '1' }],
+        '7xl': ['4.5rem', { lineHeight: '1' }],
+        '8xl': ['6rem', { lineHeight: '1' }],
+        '9xl': ['8rem', { lineHeight: '1' }],
       },
       spacing: {
-        '72': '18rem',
-        '80': '20rem',
-        '96': '24rem',
-        '112': '28rem',
-        '128': '32rem',
+        '4.5': '1.125rem',
+        '5.5': '1.375rem',
+        '6.5': '1.625rem',
+        '7.5': '1.875rem',
+        '8.5': '2.125rem',
+        '9.5': '2.375rem',
+        '10.5': '2.625rem',
+        '11.5': '2.875rem',
+        '12.5': '3.125rem',
+        '13.5': '3.375rem',
+        '14.5': '3.625rem',
+        '15.5': '3.875rem',
+        '16.5': '4.125rem',
+        '17.5': '4.375rem',
+        '18.5': '4.625rem',
+        '19.5': '4.875rem',
+        '20.5': '5.125rem',
       },
-      animation: {
-        'fade-in': 'fadeIn 0.3s ease-in',
-        'slide-in-up': 'slideInUp 0.4s ease-out',
-        'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      borderRadius: {
+        '4xl': '2rem',
+        '5xl': '2.5rem',
+        '6xl': '3rem',
       },
       boxShadow: {
-        'inner-lg': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+        'inner-lg': 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)',
+        'inner-xl': 'inset 0 4px 6px -1px rgb(0 0 0 / 0.1), inset 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+        'inner-2xl': 'inset 0 8px 16px -4px rgb(0 0 0 / 0.1), inset 0 4px 8px -4px rgb(0 0 0 / 0.1)',
+        'inner-3xl': 'inset 0 12px 24px -6px rgb(0 0 0 / 0.1), inset 0 6px 12px -6px rgb(0 0 0 / 0.1)',
+        'inner-4xl': 'inset 0 16px 32px -8px rgb(0 0 0 / 0.1), inset 0 8px 16px -8px rgb(0 0 0 / 0.1)',
       },
-      transitionDuration: {
-        '2000': '2000ms',
+      animation: {
+        'fade-in': 'fade-in 0.5s ease-out',
+        'fade-out': 'fade-out 0.5s ease-in',
+        'slide-in': 'slide-in 0.5s ease-out',
+        'slide-out': 'slide-out 0.5s ease-in',
+        'scale-in': 'scale-in 0.5s ease-out',
+        'scale-out': 'scale-out 0.5s ease-in',
+        'spin-slow': 'spin 3s linear infinite',
+        'bounce-slow': 'bounce 3s infinite',
       },
-      zIndex: {
-        '60': '60',
-        '70': '70',
-        '80': '80',
-        '90': '90',
-        '100': '100',
+      keyframes: {
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        'fade-out': {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0' },
+        },
+        'slide-in': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
+        'slide-out': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
+        'scale-in': {
+          '0%': { transform: 'scale(0)' },
+          '100%': { transform: 'scale(1)' },
+        },
+        'scale-out': {
+          '0%': { transform: 'scale(1)' },
+          '100%': { transform: 'scale(0)' },
+        },
       },
-    },
-  },
-  variants: {
-    extend: {
-      backgroundColor: ['active', 'disabled'],
-      textColor: ['active', 'disabled'],
-      borderColor: ['active', 'disabled'],
-      opacity: ['disabled'],
-      cursor: ['disabled'],
-      ringColor: ['focus-visible'],
-      ringWidth: ['focus-visible'],
-      ringOffsetWidth: ['focus-visible'],
-      ringOffsetColor: ['focus-visible'],
+      backdropBlur: {
+        xs: '2px',
+      },
     },
   },
   plugins: [
-    // Plugin for screen-reader-only utilities
-    function ({ addUtilities }) {
-      const newUtilities = {
-        '.sr-only': {
-          position: 'absolute',
-          width: '1px',
-          height: '1px',
-          padding: '0',
-          margin: '-1px',
-          overflow: 'hidden',
-          clip: 'rect(0, 0, 0, 0)',
-          whiteSpace: 'nowrap',
-          borderWidth: '0',
-        },
-        '.not-sr-only': {
-          position: 'static',
-          width: 'auto',
-          height: 'auto',
-          padding: '0',
-          margin: '0',
-          overflow: 'visible',
-          clip: 'auto',
-          whiteSpace: 'normal',
-        },
-      };
-      
-      addUtilities(newUtilities, ['responsive', 'focus']);
-    },
-    
-    // Plugin for focus-visible utilities
-    function({ addVariant, e }) {
-      addVariant('focus-visible', ({ modifySelectors, separator }) => {
-        modifySelectors(({ className }) => {
-          return `.${e(`focus-visible${separator}${className}`)}:focus-visible`;
-        });
-      });
-    },
-    
-    // Plugin for reduced-motion utilities
-    function({ addVariant, e }) {
-      addVariant('motion-reduce', ({ modifySelectors, separator }) => {
-        modifySelectors(({ className }) => {
-          return `.${e(`motion-reduce${separator}${className}`)}:where(.reduced-motion *)`;
-        });
-      });
-    },
-    
-    // Plugin for high-contrast utilities
-    function({ addVariant, e }) {
-      addVariant('contrast-high', ({ modifySelectors, separator }) => {
-        modifySelectors(({ className }) => {
-          return `.${e(`contrast-high${separator}${className}`)}:where(.high-contrast *)`;
-        });
-      });
-    },
-    
-    // Plugin for large-text utilities
-    function({ addVariant, e }) {
-      addVariant('text-large', ({ modifySelectors, separator }) => {
-        modifySelectors(({ className }) => {
-          return `.${e(`text-large${separator}${className}`)}:where(.large-text *)`;
-        });
-      });
-    },
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/aspect-ratio'),
   ],
-}; 
+} 

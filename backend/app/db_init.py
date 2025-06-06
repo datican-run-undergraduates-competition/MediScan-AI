@@ -6,6 +6,7 @@ from .core.security import get_password_hash
 from sqlalchemy.orm import Session
 from .core.database import SessionLocal
 from datetime import datetime
+from .models.models import UserSettings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -57,25 +58,62 @@ def create_default_admin():
     finally:
         db.close()
 
-def init():
-    """Initialize the database and create default data if needed"""
+def init_db(db: Session) -> None:
+    """Initialize the database with default data."""
     try:
-        if not check_connection():
-            logger.error("Could not connect to database")
-            return False
-        
-        # Create tables
-        logger.info("Creating database tables...")
-        Base.metadata.create_all(bind=engine)
-        
-        # Create default admin
-        logger.info("Creating default admin user if needed...")
-        create_default_admin()
-        
-        logger.info("Database initialization complete")
+        # Create admin user if it doesn't exist
+        admin = db.query(User).filter(User.email == "admin@mediscan.ai").first()
+        if not admin:
+            admin = User(
+                email="admin@mediscan.ai",
+                hashed_password=get_password_hash("Admin@123"),  # Change in production
+                full_name="System Administrator",
+                role="admin",
+                department="IT",
+                is_active=True
+            )
+            db.add(admin)
+            db.commit()
+            db.refresh(admin)
+            logger.info("Created admin user")
+
+            # Create default settings for admin
+            admin_settings = UserSettings(
+                user_id=admin.id,
+                notifications={
+                    "email": True,
+                    "push": True,
+                    "analysis_complete": True,
+                    "error_alerts": True
+                },
+                appearance={
+                    "theme": "light",
+                    "font_size": "medium",
+                    "language": "en"
+                },
+                privacy={
+                    "data_retention": 30,
+                    "share_analytics": True,
+                    "auto_delete": False
+                }
+            )
+            db.add(admin_settings)
+            db.commit()
+            logger.info("Created admin settings")
+
+    except Exception as e:
+        logger.error(f"Error initializing database: {str(e)}")
+        raise
+
+def init() -> bool:
+    """Initialize the database and return success status."""
+    try:
+        db = SessionLocal()
+        init_db(db)
+        db.close()
         return True
     except Exception as e:
-        logger.error(f"Database initialization failed: {e}")
+        logger.error(f"Failed to initialize database: {str(e)}")
         return False
 
 if __name__ == "__main__":

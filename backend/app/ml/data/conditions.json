@@ -1,0 +1,726 @@
+{
+  "conditions": [
+    {
+      "category": "Respiratory",
+      "name": "Pulmonary Hypertension",
+      "description": "High blood pressure in the arteries of the lungs",
+      "feature_template": [0.8, 0.7, 0.6, 0.9, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0],
+      "clinical_patterns": [
+        "Shortness of breath",
+        "Chest pain",
+        "Fatigue",
+        "Dizziness",
+        "Swelling in ankles and legs",
+        "Racing heartbeat"
+      ],
+      "severity_levels": {
+        "mild": 0.3,
+        "moderate": 0.6,
+        "severe": 0.9
+      },
+      "analysis_parameters": {
+        "temporal_factors": {
+          "progression_rate": 0.7,
+          "stability_score": 0.6,
+          "pattern_sequence": ["Shortness of breath", "Chest pain", "Fatigue"]
+        },
+        "risk_factors": [
+          {
+            "factor": "Age",
+            "impact": 0.8,
+            "mitigation": "Regular monitoring"
+          },
+          {
+            "factor": "Family history",
+            "impact": 0.6,
+            "mitigation": "Genetic screening"
+          }
+        ],
+        "progression_stages": [
+          {
+            "stage": "Early",
+            "symptoms": ["Mild shortness of breath", "Occasional chest pain"],
+            "severity": "mild"
+          },
+          {
+            "stage": "Intermediate",
+            "symptoms": ["Moderate shortness of breath", "Regular chest pain", "Fatigue"],
+            "severity": "moderate"
+          },
+          {
+            "stage": "Advanced",
+            "symptoms": ["Severe shortness of breath", "Constant chest pain", "Severe fatigue", "Swelling"],
+            "severity": "severe"
+          }
+        ],
+        "recommended_tests": [
+          "Echocardiogram",
+          "Right heart catheterization",
+          "Pulmonary function tests",
+          "Chest X-ray"
+        ],
+        "treatment_options": [
+          {
+            "stage": "mild",
+            "options": ["Lifestyle modifications", "Oral medications"]
+          },
+          {
+            "stage": "moderate",
+            "options": ["Combination therapy", "Regular monitoring"]
+          },
+          {
+            "stage": "severe",
+            "options": ["Advanced medical therapy", "Surgical intervention"]
+          }
+        ]
+      }
+    },
+    {
+      "category": "Neurological",
+      "name": "Multiple Sclerosis",
+      "description": "Autoimmune disease affecting the central nervous system",
+      "feature_template": [0.7, 0.8, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0, 0.0],
+      "clinical_patterns": [
+        "Vision problems",
+        "Muscle weakness",
+        "Coordination difficulties",
+        "Numbness or tingling",
+        "Fatigue",
+        "Balance problems"
+      ],
+      "severity_levels": {
+        "mild": 0.4,
+        "moderate": 0.7,
+        "severe": 0.9
+      },
+      "analysis_parameters": {
+        "temporal_factors": {
+          "progression_rate": 0.6,
+          "stability_score": 0.5,
+          "pattern_sequence": ["Vision problems", "Muscle weakness", "Coordination difficulties"]
+        },
+        "risk_factors": [
+          {
+            "factor": "Age of onset",
+            "impact": 0.7,
+            "mitigation": "Early intervention"
+          },
+          {
+            "factor": "Genetic predisposition",
+            "impact": 0.8,
+            "mitigation": "Family screening"
+          }
+        ],
+        "progression_stages": [
+          {
+            "stage": "Early",
+            "symptoms": ["Mild vision problems", "Occasional numbness"],
+            "severity": "mild"
+          },
+          {
+            "stage": "Intermediate",
+            "symptoms": ["Moderate muscle weakness", "Regular coordination issues"],
+            "severity": "moderate"
+          },
+          {
+            "stage": "Advanced",
+            "symptoms": ["Severe muscle weakness", "Significant balance problems", "Chronic fatigue"],
+            "severity": "severe"
+          }
+        ],
+        "recommended_tests": [
+          "MRI scan",
+          "Lumbar puncture",
+          "Evoked potential tests",
+          "Blood tests"
+        ],
+        "treatment_options": [
+          {
+            "stage": "mild",
+            "options": ["Disease-modifying medications", "Physical therapy"]
+          },
+          {
+            "stage": "moderate",
+            "options": ["Combination therapy", "Regular monitoring"]
+          },
+          {
+            "stage": "severe",
+            "options": ["Advanced medical therapy", "Rehabilitation"]
+          }
+        ]
+      }
+    },
+    {
+      "category": "Endocrine",
+      "name": "Thyroid Disorders",
+      "description": "Conditions affecting thyroid hormone production",
+      "feature_template": [0.6, 0.7, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0, 0.0, 0.0],
+      "clinical_patterns": [
+        "Weight changes",
+        "Fatigue",
+        "Temperature sensitivity",
+        "Heart rate changes",
+        "Mood changes",
+        "Hair and skin changes"
+      ],
+      "severity_levels": {
+        "mild": 0.3,
+        "moderate": 0.6,
+        "severe": 0.8
+      }
+    },
+    {
+      "category": "Gastrointestinal",
+      "name": "Crohn's Disease",
+      "description": "Chronic inflammatory bowel disease",
+      "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0, 0.0],
+      "clinical_patterns": [
+        "Abdominal pain",
+        "Diarrhea",
+        "Weight loss",
+        "Fatigue",
+        "Fever",
+        "Rectal bleeding"
+      ],
+      "severity_levels": {
+        "mild": 0.4,
+        "moderate": 0.7,
+        "severe": 0.9
+      }
+    },
+    {
+      "category": "Rheumatological",
+      "name": "Systemic Lupus Erythematosus",
+      "description": "Autoimmune disease affecting multiple organs",
+      "feature_template": [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0],
+      "clinical_patterns": [
+        "Butterfly rash",
+        "Joint pain",
+        "Fatigue",
+        "Fever",
+        "Photosensitivity",
+        "Kidney problems"
+      ],
+      "severity_levels": {
+        "mild": 0.4,
+        "moderate": 0.7,
+        "severe": 0.9
+      }
+    },
+    {
+      "category": "Hematological",
+      "name": "Hemophilia",
+      "description": "Genetic bleeding disorder",
+      "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0, 0.0],
+      "clinical_patterns": [
+        "Excessive bleeding",
+        "Easy bruising",
+        "Joint pain",
+        "Swelling",
+        "Nosebleeds",
+        "Blood in urine"
+      ],
+      "severity_levels": {
+        "mild": 0.3,
+        "moderate": 0.6,
+        "severe": 0.9
+      }
+    },
+    {
+      "category": "Dermatological",
+      "name": "Psoriasis",
+      "description": "Chronic skin condition with rapid cell turnover",
+      "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0, 0.0, 0.0],
+      "clinical_patterns": [
+        "Red patches",
+        "Silvery scales",
+        "Itching",
+        "Dry skin",
+        "Joint pain",
+        "Nail changes"
+      ],
+      "severity_levels": {
+        "mild": 0.3,
+        "moderate": 0.6,
+        "severe": 0.8
+      }
+    },
+    {
+      "category": "Ophthalmological",
+      "name": "Glaucoma",
+      "description": "Eye condition damaging the optic nerve",
+      "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0, 0.0],
+      "clinical_patterns": [
+        "Vision loss",
+        "Eye pain",
+        "Headaches",
+        "Nausea",
+        "Halos around lights",
+        "Tunnel vision"
+      ],
+      "severity_levels": {
+        "mild": 0.3,
+        "moderate": 0.6,
+        "severe": 0.9
+      }
+    },
+    {
+      "category": "Urological",
+      "name": "Kidney Stones",
+      "description": "Hard deposits of minerals and salts in kidneys",
+      "feature_template": [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0],
+      "clinical_patterns": [
+        "Severe pain",
+        "Blood in urine",
+        "Nausea",
+        "Vomiting",
+        "Fever",
+        "Urinary urgency"
+      ],
+      "severity_levels": {
+        "mild": 0.4,
+        "moderate": 0.7,
+        "severe": 0.9
+      }
+    },
+    {
+      "category": "Infectious",
+      "name": "Tuberculosis",
+      "description": "Bacterial infection primarily affecting the lungs",
+      "feature_template": [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0],
+      "clinical_patterns": [
+        "Cough",
+        "Chest pain",
+        "Weight loss",
+        "Night sweats",
+        "Fever",
+        "Fatigue"
+      ],
+      "severity_levels": {
+        "mild": 0.4,
+        "moderate": 0.7,
+        "severe": 0.9
+      }
+    },
+    {
+      "category": "Cardiovascular",
+      "name": "Hypertrophic Cardiomyopathy",
+      "description": "Genetic heart condition causing abnormal thickening of heart muscle",
+      "feature_template": [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45],
+      "clinical_patterns": [
+        "Chest pain during exercise",
+        "Shortness of breath",
+        "Fainting episodes",
+        "Irregular heartbeat",
+        "Heart murmur",
+        "Fatigue",
+        "Dizziness",
+        "Sudden cardiac arrest risk"
+      ],
+      "severity_levels": {
+        "mild": 0.4,
+        "moderate": 0.7,
+        "severe": 0.95
+      }
+    },
+    {
+      "category": "Neurological",
+      "name": "Creutzfeldt-Jakob Disease",
+      "description": "Rare, degenerative, fatal brain disorder",
+      "feature_template": [0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5],
+      "clinical_patterns": [
+        "Rapidly progressive dementia",
+        "Visual disturbances",
+        "Involuntary movements",
+        "Personality changes",
+        "Memory loss",
+        "Coordination problems",
+        "Speech difficulties",
+        "Seizures"
+      ],
+      "severity_levels": {
+        "mild": 0.5,
+        "moderate": 0.8,
+        "severe": 0.98
+      }
+    },
+    {
+      "category": "Oncological",
+      "name": "Pancreatic Neuroendocrine Tumors",
+      "description": "Rare tumors arising from hormone-producing cells in pancreas",
+      "feature_template": [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45],
+      "clinical_patterns": [
+        "Abdominal pain",
+        "Weight loss",
+        "Jaundice",
+        "Hormonal symptoms",
+        "Digestive problems",
+        "Fatigue",
+        "Metastasis indicators",
+        "Tumor markers"
+      ],
+      "severity_levels": {
+        "mild": 0.4,
+        "moderate": 0.7,
+        "severe": 0.95
+      }
+    },
+    {
+      "category": "Rheumatological",
+      "name": "Ehlers-Danlos Syndrome",
+      "description": "Group of inherited connective tissue disorders",
+      "feature_template": [0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45, 0.4],
+      "clinical_patterns": [
+        "Joint hypermobility",
+        "Skin hyperextensibility",
+        "Tissue fragility",
+        "Chronic pain",
+        "Autonomic dysfunction",
+        "Cardiovascular complications",
+        "Gastrointestinal issues",
+        "Neurological symptoms"
+      ],
+      "severity_levels": {
+        "mild": 0.3,
+        "moderate": 0.6,
+        "severe": 0.9
+      }
+    },
+    {
+      "category": "Immunological",
+      "name": "Primary Immunodeficiency Disorders",
+      "description": "Inherited immune system disorders",
+      "feature_template": [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45],
+      "clinical_patterns": [
+        "Recurrent infections",
+        "Autoimmune manifestations",
+        "Growth failure",
+        "Chronic inflammation",
+        "Cancer predisposition",
+        "Allergic reactions",
+        "Gastrointestinal symptoms",
+        "Respiratory complications"
+      ],
+      "severity_levels": {
+        "mild": 0.4,
+        "moderate": 0.7,
+        "severe": 0.95
+      }
+    },
+    {
+      "category": "Endocrine",
+      "name": "Multiple Endocrine Neoplasia",
+      "description": "Rare genetic disorders affecting multiple endocrine glands",
+      "feature_template": [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45],
+      "clinical_patterns": [
+        "Hormonal imbalances",
+        "Tumor development",
+        "Calcium metabolism disorders",
+        "Gastrointestinal symptoms",
+        "Neurological manifestations",
+        "Cardiovascular complications",
+        "Bone abnormalities",
+        "Genetic markers"
+      ],
+      "severity_levels": {
+        "mild": 0.4,
+        "moderate": 0.7,
+        "severe": 0.95
+      }
+    },
+    {
+      "category": "Genetic",
+      "name": "Marfan Syndrome",
+      "description": "Connective tissue disorder affecting multiple body systems",
+      "feature_template": [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45],
+      "clinical_patterns": [
+        "Tall stature",
+        "Long limbs",
+        "Cardiovascular abnormalities",
+        "Eye problems",
+        "Skeletal deformities",
+        "Aortic dilation",
+        "Joint hypermobility",
+        "Genetic markers"
+      ],
+      "severity_levels": {
+        "mild": 0.3,
+        "moderate": 0.6,
+        "severe": 0.9
+      }
+    },
+    {
+      "category": "Metabolic",
+      "name": "Porphyria",
+      "description": "Group of rare genetic disorders affecting heme production",
+      "feature_template": [0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45, 0.4],
+      "clinical_patterns": [
+        "Abdominal pain",
+        "Neurological symptoms",
+        "Skin sensitivity",
+        "Psychiatric manifestations",
+        "Urinary changes",
+        "Photosensitivity",
+        "Autonomic dysfunction",
+        "Metabolic markers"
+      ],
+      "severity_levels": {
+        "mild": 0.3,
+        "moderate": 0.6,
+        "severe": 0.9
+      }
+    },
+    {
+      "category": "Hematological",
+      "name": "Thrombotic Thrombocytopenic Purpura",
+      "description": "Rare blood disorder causing blood clots",
+      "feature_template": [0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5],
+      "clinical_patterns": [
+        "Microangiopathic hemolytic anemia",
+        "Thrombocytopenia",
+        "Neurological symptoms",
+        "Renal dysfunction",
+        "Fever",
+        "Bleeding manifestations",
+        "Organ damage",
+        "Laboratory markers"
+      ],
+      "severity_levels": {
+        "mild": 0.4,
+        "moderate": 0.7,
+        "severe": 0.98
+      }
+    },
+    {
+      "category": "Infectious",
+      "name": "Progressive Multifocal Leukoencephalopathy",
+      "description": "Rare viral brain infection",
+      "feature_template": [0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5],
+      "clinical_patterns": [
+        "Progressive neurological deficits",
+        "Cognitive changes",
+        "Visual disturbances",
+        "Motor dysfunction",
+        "Speech problems",
+        "Personality changes",
+        "Seizures",
+        "MRI findings"
+      ],
+      "severity_levels": {
+        "mild": 0.4,
+        "moderate": 0.7,
+        "severe": 0.98
+      }
+    },
+    {
+      "category": "Neurological",
+      "name": "Autoimmune Encephalitis",
+      "description": "Inflammation of the brain caused by autoimmune response",
+      "feature_template": [0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5],
+      "clinical_patterns": [
+        "Rapid cognitive decline",
+        "Psychiatric symptoms",
+        "Seizures",
+        "Movement disorders",
+        "Autonomic dysfunction",
+        "Sleep disturbances",
+        "Memory problems",
+        "Autoantibody markers"
+      ],
+      "severity_levels": {
+        "mild": 0.4,
+        "moderate": 0.7,
+        "severe": 0.95
+      }
+    },
+    {
+      "category": "Rheumatological",
+      "name": "Antiphospholipid Syndrome",
+      "description": "Autoimmune disorder causing blood clots",
+      "feature_template": [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45],
+      "clinical_patterns": [
+        "Recurrent thrombosis",
+        "Pregnancy complications",
+        "Livedo reticularis",
+        "Thrombocytopenia",
+        "Neurological symptoms",
+        "Cardiac valve disease",
+        "Autoantibody presence",
+        "Coagulation markers"
+      ],
+      "severity_levels": {
+        "mild": 0.3,
+        "moderate": 0.6,
+        "severe": 0.9
+      }
+    },
+    {
+      "category": "Endocrine",
+      "name": "Cushing's Disease",
+      "description": "Pituitary tumor causing excess cortisol production",
+      "feature_template": [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45],
+      "clinical_patterns": [
+        "Central obesity",
+        "Moon face",
+        "Buffalo hump",
+        "Purple striae",
+        "Muscle weakness",
+        "Osteoporosis",
+        "Glucose intolerance",
+        "Hormonal markers"
+      ],
+      "severity_levels": {
+        "mild": 0.3,
+        "moderate": 0.6,
+        "severe": 0.9
+      }
+    },
+    {
+      "category": "Gastrointestinal",
+      "name": "Autoimmune Hepatitis",
+      "description": "Chronic liver inflammation from autoimmune response",
+      "feature_template": [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45],
+      "clinical_patterns": [
+        "Jaundice",
+        "Fatigue",
+        "Abdominal pain",
+        "Joint pain",
+        "Autoantibodies",
+        "Liver function abnormalities",
+        "Portal hypertension",
+        "Histological findings"
+      ],
+      "severity_levels": {
+        "mild": 0.3,
+        "moderate": 0.6,
+        "severe": 0.9
+      }
+    },
+    {
+      "category": "Cardiovascular",
+      "name": "Takotsubo Cardiomyopathy",
+      "description": "Stress-induced heart muscle weakness",
+      "feature_template": [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45],
+      "clinical_patterns": [
+        "Chest pain",
+        "Shortness of breath",
+        "ECG changes",
+        "Cardiac enzyme elevation",
+        "Left ventricular dysfunction",
+        "Emotional stress trigger",
+        "Wall motion abnormalities",
+        "Recovery pattern"
+      ],
+      "severity_levels": {
+        "mild": 0.3,
+        "moderate": 0.6,
+        "severe": 0.9
+      }
+    },
+    {
+      "category": "Neurological",
+      "name": "Paraneoplastic Neurological Syndromes",
+      "description": "Rare immune-mediated disorders associated with cancer",
+      "feature_template": [0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5],
+      "clinical_patterns": [
+        "Rapid neurological deterioration",
+        "Autoantibody presence",
+        "Cancer association",
+        "Multiple system involvement",
+        "Treatment resistance",
+        "Immunological markers",
+        "Neural tissue damage",
+        "Systemic symptoms"
+      ],
+      "severity_levels": {
+        "mild": 0.4,
+        "moderate": 0.7,
+        "severe": 0.95
+      }
+    },
+    {
+      "category": "Rheumatological",
+      "name": "Relapsing Polychondritis",
+      "description": "Rare autoimmune disorder affecting cartilage",
+      "feature_template": [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45],
+      "clinical_patterns": [
+        "Cartilage inflammation",
+        "Ear involvement",
+        "Nasal collapse",
+        "Airway involvement",
+        "Joint inflammation",
+        "Ocular manifestations",
+        "Cardiovascular complications",
+        "Autoimmune markers"
+      ],
+      "severity_levels": {
+        "mild": 0.3,
+        "moderate": 0.6,
+        "severe": 0.9
+      }
+    },
+    {
+      "category": "Endocrine",
+      "name": "Multiple Endocrine Neoplasia Type 1",
+      "description": "Rare genetic disorder affecting multiple endocrine glands",
+      "feature_template": [0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5],
+      "clinical_patterns": [
+        "Parathyroid tumors",
+        "Pancreatic neuroendocrine tumors",
+        "Pituitary adenomas",
+        "Genetic mutations",
+        "Hormonal imbalances",
+        "Multiple organ involvement",
+        "Tumor markers",
+        "Family history"
+      ],
+      "severity_levels": {
+        "mild": 0.4,
+        "moderate": 0.7,
+        "severe": 0.95
+      }
+    },
+    {
+      "category": "Gastrointestinal",
+      "name": "Whipple's Disease",
+      "description": "Rare bacterial infection affecting multiple systems",
+      "feature_template": [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45],
+      "clinical_patterns": [
+        "Weight loss",
+        "Diarrhea",
+        "Arthralgia",
+        "Neurological symptoms",
+        "Lymphadenopathy",
+        "Fever",
+        "Malabsorption",
+        "Bacterial markers"
+      ],
+      "severity_levels": {
+        "mild": 0.3,
+        "moderate": 0.6,
+        "severe": 0.9
+      }
+    },
+    {
+      "category": "Cardiovascular",
+      "name": "Cardiac Amyloidosis",
+      "description": "Protein deposition disorder affecting the heart",
+      "feature_template": [0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5],
+      "clinical_patterns": [
+        "Heart failure",
+        "Arrhythmias",
+        "Cardiac hypertrophy",
+        "Protein markers",
+        "Multi-organ involvement",
+        "Fatigue",
+        "Exercise intolerance",
+        "Biopsy findings"
+      ],
+      "severity_levels": {
+        "mild": 0.4,
+        "moderate": 0.7,
+        "severe": 0.95
+      }
+    }
+  ]
+} 

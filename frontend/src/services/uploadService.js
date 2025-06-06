@@ -1,5 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import api, { apiClient } from '../utils/apiClient';
+import axios from 'axios';
+
+const API_URL = 'http://localhost:3000/api';
 
 /**
  * Handles chunked file upload with resumability and improved error handling
@@ -293,7 +296,77 @@ const cancelUpload = async (fileId) => {
  */
 const createAbortController = () => new AbortController();
 
-export default {
+const uploadService = {
+  // X-ray upload and analysis
+  uploadXray: async (file, modelId, onProgress) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('modelId', modelId);
+
+    return axios.post(`${API_URL}/xray/upload`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: onProgress,
+    });
+  },
+
+  // Get available X-ray models
+  getXrayModels: async () => {
+    return axios.get(`${API_URL}/xray/models`);
+  },
+
+  // Get analysis results
+  getAnalysisResults: async (analysisId) => {
+    return axios.get(`${API_URL}/analysis/${analysisId}`);
+  },
+
+  // Upload MRI scan
+  uploadMri: async (file, modelId, onProgress) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('modelId', modelId);
+
+    return axios.post(`${API_URL}/mri/upload`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: onProgress,
+    });
+  },
+
+  // Upload CT scan
+  uploadCt: async (file, modelId, onProgress) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('modelId', modelId);
+
+    return axios.post(`${API_URL}/ct/upload`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: onProgress,
+    });
+  },
+
+  // Upload medical report
+  uploadReport: async (file, onProgress) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return axios.post(`${API_URL}/report/upload`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: onProgress,
+    });
+  },
+
+  // Get voice command response
+  getVoiceCommandResponse: async (command) => {
+    return axios.post(`${API_URL}/voice/command`, { command });
+  },
+
   uploadXrayImage,
   uploadMriImage,
   uploadCtImage,
@@ -301,4 +374,6 @@ export default {
   checkUploadStatus,
   cancelUpload,
   createAbortController
-}; 
+};
+
+export default uploadService; 

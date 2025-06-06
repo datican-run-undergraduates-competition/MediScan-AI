@@ -1,0 +1,722 @@
+{
+    "pneumonia": {
+        "category": "respiratory",
+        "description": "Inflammation of the air sacs in the lungs",
+        "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4],
+        "clinical_patterns": [
+            "cough",
+            "fever",
+            "chest pain",
+            "difficulty breathing"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.6,
+            "severe": 0.8
+        }
+    },
+    "tuberculosis": {
+        "category": "respiratory",
+        "description": "Bacterial infection affecting the lungs",
+        "feature_template": [0.7, 0.8, 0.6, 0.5, 0.4],
+        "clinical_patterns": [
+            "chronic cough",
+            "weight loss",
+            "night sweats",
+            "fatigue"
+        ],
+        "severity_levels": {
+            "mild": 0.25,
+            "moderate": 0.5,
+            "severe": 0.75
+        }
+    },
+    "covid19": {
+        "category": "respiratory",
+        "description": "Viral respiratory infection",
+        "feature_template": [0.9, 0.8, 0.7, 0.6, 0.5],
+        "clinical_patterns": [
+            "fever",
+            "cough",
+            "loss of taste",
+            "loss of smell"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.6,
+            "severe": 0.8
+        }
+    },
+    "stroke": {
+        "category": "neurological",
+        "description": "Interruption of blood supply to the brain",
+        "feature_template": [0.9, 0.8, 0.7, 0.6, 0.5],
+        "clinical_patterns": [
+            "sudden weakness",
+            "speech difficulty",
+            "vision problems",
+            "balance issues"
+        ],
+        "severity_levels": {
+            "mild": 0.2,
+            "moderate": 0.4,
+            "severe": 0.6
+        }
+    },
+    "multiple_sclerosis": {
+        "category": "neurological",
+        "description": "Immune system attacks protective nerve covering",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "vision problems",
+            "muscle weakness",
+            "coordination issues",
+            "fatigue"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.6,
+            "severe": 0.8
+        }
+    },
+    "alzheimers": {
+        "category": "neurological",
+        "description": "Progressive brain disorder affecting memory and thinking",
+        "feature_template": [0.6, 0.5, 0.4, 0.3, 0.2],
+        "clinical_patterns": [
+            "memory loss",
+            "confusion",
+            "behavioral changes",
+            "cognitive decline"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "parkinsons": {
+        "category": "neurological",
+        "description": "Progressive nervous system disorder affecting movement",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "tremors",
+            "stiffness",
+            "balance problems",
+            "movement difficulties"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "epilepsy": {
+        "category": "neurological",
+        "description": "Central nervous system disorder causing seizures",
+        "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4],
+        "clinical_patterns": [
+            "seizures",
+            "loss of consciousness",
+            "unusual sensations",
+            "temporary confusion"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "migraine": {
+        "category": "neurological",
+        "description": "Recurrent headache disorder",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "severe headache",
+            "nausea",
+            "sensitivity to light",
+            "aura symptoms"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "heart_failure": {
+        "category": "cardiovascular",
+        "description": "Heart's inability to pump blood effectively",
+        "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4],
+        "clinical_patterns": [
+            "shortness of breath",
+            "fatigue",
+            "swelling",
+            "chest pain"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "hypertension": {
+        "category": "cardiovascular",
+        "description": "High blood pressure",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "headaches",
+            "dizziness",
+            "chest pain",
+            "shortness of breath"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "arrhythmia": {
+        "category": "cardiovascular",
+        "description": "Irregular heartbeat",
+        "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4],
+        "clinical_patterns": [
+            "irregular heartbeat",
+            "chest pain",
+            "dizziness",
+            "shortness of breath"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "coronary_artery_disease": {
+        "category": "cardiovascular",
+        "description": "Narrowing of coronary arteries",
+        "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4],
+        "clinical_patterns": [
+            "chest pain",
+            "shortness of breath",
+            "fatigue",
+            "heart attack symptoms"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "diabetes": {
+        "category": "endocrine",
+        "description": "Metabolic disorder affecting blood sugar",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "increased thirst",
+            "frequent urination",
+            "fatigue",
+            "blurred vision"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "thyroid_disorder": {
+        "category": "endocrine",
+        "description": "Abnormal thyroid function",
+        "feature_template": [0.6, 0.5, 0.4, 0.3, 0.2],
+        "clinical_patterns": [
+            "fatigue",
+            "weight changes",
+            "mood changes",
+            "temperature sensitivity"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "arthritis": {
+        "category": "musculoskeletal",
+        "description": "Joint inflammation",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "joint pain",
+            "stiffness",
+            "swelling",
+            "reduced range of motion"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "osteoporosis": {
+        "category": "musculoskeletal",
+        "description": "Bone density loss",
+        "feature_template": [0.6, 0.5, 0.4, 0.3, 0.2],
+        "clinical_patterns": [
+            "bone fractures",
+            "back pain",
+            "loss of height",
+            "stooped posture"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "celiac_disease": {
+        "category": "gastrointestinal",
+        "description": "Autoimmune reaction to gluten",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "digestive problems",
+            "weight loss",
+            "fatigue",
+            "skin rash"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "crohns_disease": {
+        "category": "gastrointestinal",
+        "description": "Inflammatory bowel disease",
+        "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4],
+        "clinical_patterns": [
+            "abdominal pain",
+            "diarrhea",
+            "weight loss",
+            "fatigue"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "lupus": {
+        "category": "immunological",
+        "description": "Autoimmune disease affecting multiple organs",
+        "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4],
+        "clinical_patterns": [
+            "fatigue",
+            "joint pain",
+            "skin rash",
+            "fever"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "rheumatoid_arthritis": {
+        "category": "immunological",
+        "description": "Autoimmune disorder affecting joints",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "joint pain",
+            "stiffness",
+            "swelling",
+            "fatigue"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "asthma": {
+        "category": "respiratory",
+        "description": "Chronic airway inflammation causing breathing difficulties",
+        "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4],
+        "clinical_patterns": [
+            "wheezing",
+            "shortness of breath",
+            "chest tightness",
+            "coughing"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "bronchiectasis": {
+        "category": "respiratory",
+        "description": "Abnormal widening of bronchi",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "chronic cough",
+            "excess mucus",
+            "recurrent infections",
+            "shortness of breath"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "cystic_fibrosis": {
+        "category": "respiratory",
+        "description": "Genetic disorder affecting mucus production",
+        "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4],
+        "clinical_patterns": [
+            "thick mucus",
+            "recurrent infections",
+            "digestive problems",
+            "poor growth"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "pulmonary_fibrosis": {
+        "category": "respiratory",
+        "description": "Lung tissue scarring",
+        "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4],
+        "clinical_patterns": [
+            "shortness of breath",
+            "dry cough",
+            "fatigue",
+            "weight loss"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "sarcoidosis": {
+        "category": "respiratory",
+        "description": "Inflammatory disease affecting multiple organs",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "shortness of breath",
+            "chest pain",
+            "fatigue",
+            "skin lesions"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "huntingtons_disease": {
+        "category": "neurological",
+        "description": "Genetic disorder causing progressive brain damage",
+        "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4],
+        "clinical_patterns": [
+            "involuntary movements",
+            "cognitive decline",
+            "psychiatric symptoms",
+            "difficulty speaking"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "amyotrophic_lateral_sclerosis": {
+        "category": "neurological",
+        "description": "Progressive neurodegenerative disease",
+        "feature_template": [0.9, 0.8, 0.7, 0.6, 0.5],
+        "clinical_patterns": [
+            "muscle weakness",
+            "difficulty speaking",
+            "difficulty swallowing",
+            "muscle twitching"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "guillain_barre_syndrome": {
+        "category": "neurological",
+        "description": "Autoimmune disorder affecting peripheral nerves",
+        "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4],
+        "clinical_patterns": [
+            "muscle weakness",
+            "tingling sensations",
+            "difficulty walking",
+            "facial weakness"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "myasthenia_gravis": {
+        "category": "neurological",
+        "description": "Autoimmune disorder affecting muscle control",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "muscle weakness",
+            "drooping eyelids",
+            "difficulty speaking",
+            "difficulty swallowing"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "peripheral_neuropathy": {
+        "category": "neurological",
+        "description": "Damage to peripheral nerves",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "numbness",
+            "tingling",
+            "burning pain",
+            "muscle weakness"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "aortic_aneurysm": {
+        "category": "cardiovascular",
+        "description": "Abnormal bulging in aorta wall",
+        "feature_template": [0.9, 0.8, 0.7, 0.6, 0.5],
+        "clinical_patterns": [
+            "chest pain",
+            "back pain",
+            "abdominal pain",
+            "pulsating sensation"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "peripheral_artery_disease": {
+        "category": "cardiovascular",
+        "description": "Narrowing of peripheral arteries",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "leg pain",
+            "numbness",
+            "weakness",
+            "cold extremities"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "deep_vein_thrombosis": {
+        "category": "cardiovascular",
+        "description": "Blood clot in deep veins",
+        "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4],
+        "clinical_patterns": [
+            "leg swelling",
+            "pain",
+            "redness",
+            "warmth"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "pulmonary_embolism": {
+        "category": "cardiovascular",
+        "description": "Blood clot in lungs",
+        "feature_template": [0.9, 0.8, 0.7, 0.6, 0.5],
+        "clinical_patterns": [
+            "sudden shortness of breath",
+            "chest pain",
+            "cough",
+            "rapid heart rate"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "addisons_disease": {
+        "category": "endocrine",
+        "description": "Adrenal insufficiency",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "fatigue",
+            "weight loss",
+            "darkening skin",
+            "low blood pressure"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "cushings_syndrome": {
+        "category": "endocrine",
+        "description": "Excess cortisol production",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "weight gain",
+            "moon face",
+            "buffalo hump",
+            "stretch marks"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "acromegaly": {
+        "category": "endocrine",
+        "description": "Excess growth hormone",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "enlarged hands",
+            "enlarged feet",
+            "facial changes",
+            "joint pain"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "fibromyalgia": {
+        "category": "musculoskeletal",
+        "description": "Chronic pain condition",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "widespread pain",
+            "fatigue",
+            "sleep problems",
+            "cognitive issues"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "ankylosing_spondylitis": {
+        "category": "musculoskeletal",
+        "description": "Inflammatory arthritis affecting spine",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "back pain",
+            "stiffness",
+            "reduced flexibility",
+            "fatigue"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "gout": {
+        "category": "musculoskeletal",
+        "description": "Uric acid crystal deposition",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "joint pain",
+            "swelling",
+            "redness",
+            "tenderness"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "ulcerative_colitis": {
+        "category": "gastrointestinal",
+        "description": "Inflammatory bowel disease",
+        "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4],
+        "clinical_patterns": [
+            "abdominal pain",
+            "diarrhea",
+            "rectal bleeding",
+            "weight loss"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "cirrhosis": {
+        "category": "gastrointestinal",
+        "description": "Liver scarring",
+        "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4],
+        "clinical_patterns": [
+            "jaundice",
+            "ascites",
+            "easy bruising",
+            "confusion"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "scleroderma": {
+        "category": "immunological",
+        "description": "Autoimmune connective tissue disease",
+        "feature_template": [0.8, 0.7, 0.6, 0.5, 0.4],
+        "clinical_patterns": [
+            "skin thickening",
+            "joint pain",
+            "digestive problems",
+            "shortness of breath"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    },
+    "sjogrens_syndrome": {
+        "category": "immunological",
+        "description": "Autoimmune disorder affecting moisture-producing glands",
+        "feature_template": [0.7, 0.6, 0.5, 0.4, 0.3],
+        "clinical_patterns": [
+            "dry eyes",
+            "dry mouth",
+            "joint pain",
+            "fatigue"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.5,
+            "severe": 0.7
+        }
+    }
+} 

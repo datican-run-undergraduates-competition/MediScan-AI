@@ -253,15 +253,9 @@ const XrayUpload = () => {
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
           
-          // Convert to blob
           canvas.toBlob(
             (blob) => {
-              const compressedFile = new File(
-                [blob], 
-                file.name, 
-                { type: 'image/jpeg', lastModified: Date.now() }
-              );
-              resolve(compressedFile);
+              resolve(new File([blob], file.name, { type: 'image/jpeg' }));
             },
             'image/jpeg',
             quality
@@ -271,152 +265,121 @@ const XrayUpload = () => {
     });
   };
 
-  // Remove a file from the list
+  // Remove file from list
   const removeFile = (index) => {
     setFiles(prev => prev.filter((_, i) => i !== index));
-    
-    // Also remove any progress or status for this file
-    const newProgress = { ...uploadProgress };
-    const newStatus = { ...uploadStatus };
-    delete newProgress[index];
-    delete newStatus[index];
-    setUploadProgress(newProgress);
-    setUploadStatus(newStatus);
+    setUploadProgress(prev => {
+      const newProgress = { ...prev };
+      delete newProgress[index];
+      return newProgress;
+    });
+    setUploadStatus(prev => {
+      const newStatus = { ...prev };
+      delete newStatus[index];
+      return newStatus;
+    });
   };
 
   // Upload and analyze a single file
   const uploadAndAnalyzeFile = async (file, modelId) => {
-    const fileIndex = files.indexOf(file);
+    const fileIndex = files.findIndex(f => f === file);
     
     try {
-      // Create a unique ID for this upload
-      const uploadId = Date.now().toString();
-      
-      // Update status
-      setUploadStatus(prev => ({ 
-        ...prev, 
-        [fileIndex]: { status: 'uploading', id: uploadId } 
+      setUploadStatus(prev => ({
+        ...prev,
+        [fileIndex]: 'uploading'
       }));
       
-      // Setup progress tracking
-      const onUploadProgress = (progressEvent) => {
-        const progress = Math.round(
-          (progressEvent.loaded * 100) / progressEvent.total
-        );
-        setUploadProgress(prev => ({ ...prev, [fileIndex]: progress }));
-      };
+      const response = await uploadService.uploadXray(file, modelId, (progressEvent) => {
+        const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        setUploadProgress(prev => ({
+          ...prev,
+          [fileIndex]: progress
+        }));
+      });
       
-      // Upload the file with resumable capability
-      const response = await uploadService.uploadXrayImage(
-        file, 
-        modelId || selectedModel,
-        { 
-          onUploadProgress,
-          resumable: true,
-        }
-      );
-      
-      // Update status to success
-      setUploadStatus(prev => ({ 
-        ...prev, 
-        [fileIndex]: { 
-          status: 'success', 
-          id: uploadId,
-          result: response.data 
-        } 
+      setUploadStatus(prev => ({
+        ...prev,
+        [fileIndex]: 'success'
       }));
       
-      // Show success message
-      toast.success(`Successfully uploaded and analyzed ${file.name}`);
+      // Get analysis results
+      const analysisId = response.data.analysisId;
+      const results = await uploadService.getAnalysisResults(analysisId);
       
-      // Return the result
-      return response.data;
+      setResults(prev => ({
+        ...prev,
+        [fileIndex]: results.data
+      }));
+      
+      return results.data;
     } catch (error) {
-      console.error('Upload error:', error);
-      
-      // Update status to failed
-      setUploadStatus(prev => ({ 
-        ...prev, 
-        [fileIndex]: { 
-          status: 'failed',
-          error: error.message || 'Upload failed' 
-        } 
+      console.error('Error uploading file:', error);
+      setUploadStatus(prev => ({
+        ...prev,
+        [fileIndex]: 'error'
       }));
-      
-      // Show error message
-      toast.error(`Failed to upload ${file.name}: ${error.message || 'Unknown error'}`);
-      
-      // Store for later upload if we're offline
-      if (!navigator.onLine) {
-        storeForOfflineUpload(file, modelId || selectedModel);
-      }
-      
       throw error;
     }
   };
 
-  // Store a file for later upload when connection is restored
+  // Store file for offline upload
   const storeForOfflineUpload = async (file, modelId) => {
-    try {
-      // Convert file to data URL for storage
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        const newPendingUpload = {
-          id: Date.now().toString(),
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    
+    return new Promise((resolve) => {
+      reader.onload = async () => {
+        const pendingUpload = {
+          id: Date.now(),
           name: file.name,
           type: file.type,
-          size: file.size,
           dataUrl: reader.result,
-          modelId: modelId,
-          timestamp: Date.now()
+          modelId,
+          timestamp: new Date().toISOString()
         };
         
-        const updatedPending = [...pendingUploads, newPendingUpload];
+        const updatedPending = [...pendingUploads, pendingUpload];
         setPendingUploads(updatedPending);
         localStorage.setItem('pendingXrayUploads', JSON.stringify(updatedPending));
         
-        toast.info(`${file.name} saved for upload when connection is restored.`);
+        resolve();
       };
-    } catch (error) {
-      console.error('Error storing file for offline upload:', error);
-      toast.error(`Failed to save ${file.name} for later upload.`);
-    }
+    });
   };
 
   // Upload all files
   const uploadAllFiles = async () => {
-    if (files.length === 0) return;
+    if (files.length === 0) {
+      toast.warning('Please select files to upload');
+      return;
+    }
+    
+    if (!selectedModel) {
+      toast.warning('Please select a model');
+      return;
+    }
     
     setProcessing(true);
-    const results = [];
     
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         
-        // Skip already processed files
-        if (uploadStatus[i] && uploadStatus[i].status === 'success') {
-          results.push(uploadStatus[i].result);
-          continue;
-        }
-        
         try {
-          const result = await uploadAndAnalyzeFile(file, selectedModel);
-          results.push(result);
+          if (navigator.onLine) {
+            await uploadAndAnalyzeFile(file, selectedModel);
+          } else {
+            await storeForOfflineUpload(file, selectedModel);
+            toast.info(`File ${file.name} stored for offline upload`);
+          }
         } catch (error) {
-          console.error(`Error processing file ${i}:`, error);
-          // Continue with next file
+          console.error(`Error processing file ${file.name}:`, error);
+          toast.error(`Failed to process ${file.name}`);
         }
       }
       
-      // Set combined results
-      if (results.length > 0) {
-        setResults(results);
-      }
-    } catch (error) {
-      console.error('Error in batch upload:', error);
-      toast.error('Some files failed to upload. Please check the file list for details.');
+      toast.success('All files processed successfully');
     } finally {
       setProcessing(false);
     }
@@ -426,232 +389,159 @@ const XrayUpload = () => {
   const handleVoiceCommand = (text) => {
     setVoiceCommandText(text);
     
-    const lowerText = text.toLowerCase();
-    
     // Process voice commands
-    if (lowerText.includes('upload') || lowerText.includes('send') || lowerText.includes('submit')) {
+    const command = text.toLowerCase();
+    
+    if (command.includes('upload')) {
+      fileInputRef.current?.click();
+    } else if (command.includes('start') || command.includes('begin')) {
       uploadAllFiles();
-      setVoiceFeedback('Starting upload of all files.');
-    } 
-    else if (lowerText.includes('select file') || lowerText.includes('choose file') || lowerText.includes('pick file')) {
-      fileInputRef.current.click();
-      setVoiceFeedback('Please select files to upload.');
-    }
-    else if (lowerText.includes('compress high') || lowerText.includes('high compression')) {
-      setCompressionLevel('high');
-      setVoiceFeedback('Set to high compression level.');
-    }
-    else if (lowerText.includes('compress low') || lowerText.includes('low compression')) {
-      setCompressionLevel('low');
-      setVoiceFeedback('Set to low compression level.');
-    }
-    else if (lowerText.includes('compress medium') || lowerText.includes('medium compression')) {
-      setCompressionLevel('medium');
-      setVoiceFeedback('Set to medium compression level.');
-    }
-    else if (lowerText.includes('no compress') || lowerText.includes('no compression')) {
-      setCompressionLevel('none');
-      setVoiceFeedback('Compression disabled.');
-    }
-    else if (lowerText.includes('clear') || lowerText.includes('reset')) {
+    } else if (command.includes('clear') || command.includes('remove all')) {
       setFiles([]);
       setUploadProgress({});
       setUploadStatus({});
       setResults(null);
-      setVoiceFeedback('All files cleared.');
-    }
-    else if (lowerText.includes('help')) {
-      setVoiceFeedback('Available commands: upload files, select files, set compression level, clear files, or help.');
-    }
-    else {
-      setVoiceFeedback('Command not recognized. Try "help" for available commands.');
+    } else if (command.includes('select model')) {
+      // Extract model name from command
+      const modelName = command.split('select model')[1]?.trim();
+      if (modelName) {
+        const model = models.find(m => 
+          m.name.toLowerCase().includes(modelName.toLowerCase())
+        );
+        if (model) {
+          setSelectedModel(model.id);
+          setVoiceFeedback(`Selected model: ${model.name}`);
+        }
+      }
     }
   };
 
   // Toggle voice commands
   const toggleVoiceCommands = () => {
     setVoiceCommandActive(!voiceCommandActive);
-    
     if (!voiceCommandActive) {
-      setVoiceFeedback('Voice commands activated. Say "help" for available commands.');
+      setVoiceFeedback('Voice commands activated. You can now use voice commands to control the upload process.');
     }
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8 text-center">
+      <div className="mb-8">
         <h1 className="text-3xl font-bold text-blue-800 mb-2">X-Ray Upload</h1>
-        <p className="text-gray-600">Upload X-ray images for AI analysis</p>
+        <p className="text-gray-600">
+          Upload and analyze X-ray images using our advanced AI models
+        </p>
       </div>
-      
-      {/* Network status indicator */}
-      <div className={`mb-4 p-3 rounded-md text-white text-center ${offline ? 'bg-red-500' : 'bg-green-500'}`}>
-        {offline ? (
-          <div className="flex items-center justify-center">
-            <FaExclamationTriangle className="mr-2" />
-            <span>You are currently offline. Files will be saved and uploaded when your connection is restored.</span>
-          </div>
-        ) : (
-          <div className="flex items-center justify-center">
-            <FaCheck className="mr-2" />
-            <span>Connected to the server. Ready to upload files.</span>
-          </div>
-        )}
-      </div>
-      
-      {/* Pending uploads notification */}
-      {pendingUploads.length > 0 && (
-        <div className="mb-4 p-3 bg-yellow-100 border border-yellow-300 rounded-md">
-          <p className="text-yellow-800">
-            You have {pendingUploads.length} pending uploads that will be processed when you're online.
-          </p>
-        </div>
-      )}
-      
-      {/* Voice commands */}
-      <div className="mb-6 flex items-center justify-center space-x-4">
+
+      {/* Voice Command Controls */}
+      <div className="mb-6 flex items-center gap-4">
         <button
           onClick={toggleVoiceCommands}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-md ${
-            voiceCommandActive ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+          className={`p-2 rounded-full ${
+            voiceCommandActive ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700'
           }`}
         >
           <FaMicrophone />
-          <span>{voiceCommandActive ? 'Voice Commands Active' : 'Enable Voice Commands'}</span>
         </button>
-        
         {voiceCommandActive && (
-          <SpeechRecognition 
-            onTextRecognized={handleVoiceCommand} 
-            language="en-US"
-          />
+          <div className="flex-1">
+            <SpeechRecognition onCommand={handleVoiceCommand} />
+            {voiceFeedback && (
+              <div className="mt-2">
+                <TextToSpeech text={voiceFeedback} />
+                <span className="text-sm text-gray-600">{voiceFeedback}</span>
+              </div>
+            )}
+          </div>
         )}
       </div>
-      
-      {voiceFeedback && voiceCommandActive && (
-        <div className="mb-4 flex items-center justify-center">
-          <div className="flex items-center bg-blue-100 text-blue-700 px-4 py-2 rounded-md">
-            <FaVolumeUp className="mr-2" />
-            <span>{voiceFeedback}</span>
-          </div>
-          <div className="ml-2">
-            <TextToSpeech text={voiceFeedback} />
-          </div>
-        </div>
-      )}
-      
-      {/* File upload area */}
-      <div 
-        ref={dropAreaRef}
-        className="mb-6 p-8 border-2 border-dashed border-gray-300 rounded-lg text-center transition-colors duration-200"
-      >
-        <FaUpload className="mx-auto text-4xl text-gray-400 mb-4" />
-        <p className="mb-4 text-gray-600">Drag and drop files here, or click to select files</p>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/dicom"
-          multiple
-          onChange={handleFileChange}
-          className="hidden"
-        />
-        <button
-          onClick={() => fileInputRef.current.click()}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md"
-          disabled={processing}
-        >
-          Select Files
-        </button>
-        
-        <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Compression Level:
-          </label>
-          <select
-            value={compressionLevel}
-            onChange={(e) => setCompressionLevel(e.target.value)}
-            className="block w-full max-w-xs mx-auto mt-1 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          >
-            <option value="none">None (Original Size)</option>
-            <option value="low">Low (90% Quality)</option>
-            <option value="medium">Medium (70% Quality)</option>
-            <option value="high">High (50% Quality)</option>
-          </select>
-        </div>
-      </div>
-      
-      {/* Model selection */}
+
+      {/* Model Selection */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Select Analysis Model:
+          Select AI Model
         </label>
         <select
           value={selectedModel}
           onChange={(e) => setSelectedModel(e.target.value)}
-          className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          disabled={processing || models.length === 0}
+          className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         >
-          {models.length === 0 ? (
-            <option value="">Loading models...</option>
-          ) : (
-            models.map((model) => (
-              <option key={model.id} value={model.id}>
-                {model.name} {model.description ? `- ${model.description}` : ''}
-              </option>
-            ))
-          )}
+          <option value="">Select a model...</option>
+          {models.map((model) => (
+            <option key={model.id} value={model.id}>
+              {model.name}
+            </option>
+          ))}
         </select>
       </div>
-      
-      {/* File list */}
+
+      {/* File Upload Area */}
+      <div
+        ref={dropAreaRef}
+        className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-6"
+      >
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          multiple
+          accept=".jpg,.jpeg,.png,.dicom"
+          className="hidden"
+        />
+        <FaUpload className="mx-auto text-4xl text-gray-400 mb-4" />
+        <p className="text-gray-600 mb-2">
+          Drag and drop your X-ray files here, or{' '}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="text-blue-500 hover:text-blue-600"
+          >
+            browse
+          </button>
+        </p>
+        <p className="text-sm text-gray-500">
+          Supported formats: JPEG, PNG, DICOM
+        </p>
+      </div>
+
+      {/* File List */}
       {files.length > 0 && (
         <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-3">Selected Files:</h2>
-          <div className="space-y-3">
+          <h2 className="text-xl font-semibold mb-4">Selected Files</h2>
+          <div className="space-y-4">
             {files.map((file, index) => (
-              <div 
-                key={index} 
-                className="flex items-center justify-between p-3 bg-gray-50 border rounded-md"
+              <div
+                key={index}
+                className="flex items-center justify-between p-4 bg-white rounded-lg shadow"
               >
-                <div className="flex items-center">
-                  <FaImage className="text-gray-500 mr-3" />
+                <div className="flex items-center space-x-4">
+                  <FaImage className="text-2xl text-gray-400" />
                   <div>
                     <p className="font-medium">{file.name}</p>
                     <p className="text-sm text-gray-500">
-                      {(file.size / 1024).toFixed(1)} KB
+                      {(file.size / 1024 / 1024).toFixed(2)} MB
                     </p>
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-3">
-                  {uploadStatus[index] ? (
-                    uploadStatus[index].status === 'uploading' ? (
-                      <div className="flex items-center">
-                        <div className="w-20 bg-gray-200 rounded-full h-2.5 mr-2">
-                          <div 
-                            className="bg-blue-600 h-2.5 rounded-full" 
-                            style={{ width: `${uploadProgress[index] || 0}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm">{uploadProgress[index] || 0}%</span>
+                <div className="flex items-center space-x-4">
+                  {uploadStatus[index] === 'uploading' && (
+                    <div className="w-32">
+                      <div className="h-2 bg-gray-200 rounded-full">
+                        <div
+                          className="h-2 bg-blue-500 rounded-full"
+                          style={{ width: `${uploadProgress[index]}%` }}
+                        />
                       </div>
-                    ) : uploadStatus[index].status === 'success' ? (
-                      <span className="text-green-600 flex items-center">
-                        <FaCheck className="mr-1" /> Uploaded
-                      </span>
-                    ) : (
-                      <span className="text-red-600 flex items-center">
-                        <FaExclamationTriangle className="mr-1" /> Failed
-                      </span>
-                    )
-                  ) : (
-                    <span className="text-gray-500 text-sm">Ready</span>
+                    </div>
                   )}
-                  
+                  {uploadStatus[index] === 'success' && (
+                    <FaCheck className="text-green-500" />
+                  )}
+                  {uploadStatus[index] === 'error' && (
+                    <FaExclamationTriangle className="text-red-500" />
+                  )}
                   <button
                     onClick={() => removeFile(index)}
-                    className="text-red-500 hover:text-red-700"
-                    disabled={processing || (uploadStatus[index] && uploadStatus[index].status === 'uploading')}
+                    className="text-red-500 hover:text-red-600"
                   >
                     Remove
                   </button>
@@ -661,68 +551,43 @@ const XrayUpload = () => {
           </div>
         </div>
       )}
-      
-      {/* Upload button */}
-      <div className="flex justify-center">
+
+      {/* Upload Button */}
+      <div className="flex justify-end">
         <button
           onClick={uploadAllFiles}
-          disabled={files.length === 0 || processing || offline}
-          className={`flex items-center px-6 py-3 rounded-md font-semibold ${
-            files.length === 0 || processing || offline
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700 text-white'
+          disabled={processing || files.length === 0 || !selectedModel}
+          className={`px-6 py-2 rounded-md text-white ${
+            processing || files.length === 0 || !selectedModel
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-blue-500 hover:bg-blue-600'
           }`}
         >
           {processing ? (
-            <>
+            <span className="flex items-center">
               <FaSpinner className="animate-spin mr-2" />
               Processing...
-            </>
+            </span>
           ) : (
-            <>
-              <FaUpload className="mr-2" />
-              Upload and Analyze {files.length > 0 ? `(${files.length} files)` : ''}
-            </>
+            'Upload and Analyze'
           )}
         </button>
       </div>
-      
-      {/* Results */}
-      {results && results.length > 0 && (
+
+      {/* Results Display */}
+      {Object.keys(results || {}).length > 0 && (
         <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Analysis Results:</h2>
+          <h2 className="text-xl font-semibold mb-4">Analysis Results</h2>
           <div className="space-y-4">
-            {results.map((result, index) => (
-              <div key={index} className="border rounded-lg p-4 bg-white shadow-sm">
-                <h3 className="font-semibold text-lg mb-2">Result for {files[index]?.name || `File ${index + 1}`}</h3>
-                <div className="space-y-2">
-                  {result.predictions && (
-                    <div>
-                      <h4 className="font-medium">Predictions:</h4>
-                      <ul className="list-disc pl-5">
-                        {Object.entries(result.predictions).map(([key, value]) => (
-                          <li key={key}>
-                            {key}: {typeof value === 'number' ? `${(value * 100).toFixed(2)}%` : JSON.stringify(value)}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  
-                  {result.analysis && (
-                    <div>
-                      <h4 className="font-medium">Analysis:</h4>
-                      <p>{result.analysis}</p>
-                    </div>
-                  )}
-                  
-                  {result.recommendations && (
-                    <div>
-                      <h4 className="font-medium">Recommendations:</h4>
-                      <p>{result.recommendations}</p>
-                    </div>
-                  )}
-                </div>
+            {Object.entries(results).map(([index, result]) => (
+              <div
+                key={index}
+                className="p-4 bg-white rounded-lg shadow"
+              >
+                <h3 className="font-medium mb-2">{files[index].name}</h3>
+                <pre className="bg-gray-50 p-4 rounded-md overflow-x-auto">
+                  {JSON.stringify(result, null, 2)}
+                </pre>
               </div>
             ))}
           </div>

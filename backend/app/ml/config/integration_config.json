@@ -1,0 +1,154 @@
+{
+    "components": {
+        "medical_processor": {
+            "image_processor": {
+                "supported_modalities": ["CT", "MRI", "X-Ray", "Ultrasound"],
+                "quality_threshold": 0.85,
+                "max_image_size": 2048,
+                "models": {
+                    "quality_assessment": {
+                        "model_name": "microsoft/BiomedVLP-CXR-BERT-general",
+                        "weight": 0.4
+                    },
+                    "analysis": {
+                        "model_name": "microsoft/BiomedVLP-CXR-BERT-general",
+                        "weight": 0.3
+                    }
+                }
+            },
+            "text_processor": {
+                "supported_languages": ["en", "es", "fr", "de"],
+                "min_confidence": 0.8,
+                "models": {
+                    "clinical_bert": {
+                        "model_name": "microsoft/BioGPT-large",
+                        "weight": 0.4
+                    },
+                    "medical_8b": {
+                        "model_name": "microsoft/BioGPT-large",
+                        "weight": 0.3
+                    }
+                }
+            },
+            "decision_engine": {
+                "confidence_threshold": 0.85,
+                "max_conditions": 5,
+                "models": {
+                    "condition_classification": {
+                        "model_name": "microsoft/BioGPT-large",
+                        "weight": 0.4
+                    },
+                    "severity_assessment": {
+                        "model_name": "microsoft/BioGPT-large",
+                        "weight": 0.3
+                    }
+                }
+            },
+            "measurement_processor": {
+                "confidence_threshold": 0.9,
+                "supported_units": ["mm", "cm", "ml", "mg", "g"],
+                "models": {
+                    "measurement_analysis": {
+                        "model_name": "microsoft/BioGPT-large",
+                        "weight": 0.4
+                    }
+                }
+            }
+        },
+        "dicom_processor": {
+            "models": {
+                "image_analysis": {
+                    "model_name": "microsoft/BiomedVLP-CXR-BERT-general",
+                    "weight": 0.4
+                },
+                "metadata_processing": {
+                    "model_name": "microsoft/BioGPT-large",
+                    "weight": 0.3
+                }
+            }
+        },
+        "chatbot": {
+            "response_generation": {
+                "min_confidence": 0.8,
+                "max_response_length": 500,
+                "temperature": 0.7,
+                "top_p": 0.9,
+                "models": {
+                    "medical_8b": {
+                        "model_name": "microsoft/BioGPT-large",
+                        "weight": 0.4
+                    },
+                    "clinical_bert": {
+                        "model_name": "microsoft/BioGPT-large",
+                        "weight": 0.3
+                    }
+                }
+            },
+            "context_extraction": {
+                "min_confidence": 0.75,
+                "max_context_length": 1000
+            }
+        }
+    },
+    "model_management": {
+        "remote_models": {
+            "cache_dir": "models/cache",
+            "use_remote": true,
+            "download_timeout": 300,
+            "retry_attempts": 3,
+            "max_cache_size_gb": 2,
+            "cleanup_interval_hours": 24
+        },
+        "quantization": {
+            "use_8bit": true,
+            "use_4bit": false,
+            "llm_int8_threshold": 6.0,
+            "llm_int8_has_fp16_weight": false,
+            "bnb_4bit_compute_dtype": "float16",
+            "bnb_4bit_use_double_quant": true,
+            "bnb_4bit_quant_type": "nf4"
+        },
+        "ensemble_methods": {
+            "voting": {
+                "type": "weighted",
+                "confidence_threshold": 0.7
+            },
+            "aggregation": {
+                "type": "weighted_average",
+                "min_models": 2
+            }
+        },
+        "task_specific": {
+            "dicom_analysis": {
+                "primary_model": "medical_8b",
+                "fallback_model": "clinical_bert"
+            },
+            "scan_analysis": {
+                "primary_model": "medical_8b",
+                "fallback_model": "clinical_bert"
+            },
+            "decision_making": {
+                "primary_model": "clinical_bert",
+                "fallback_model": "medical_8b"
+            },
+            "medical_coding": {
+                "primary_model": "medical_8b",
+                "fallback_model": "clinical_bert"
+            },
+            "summarization": {
+                "primary_model": "medical_8b",
+                "fallback_model": "clinical_bert"
+            }
+        }
+    },
+    "session_management": {
+        "max_active_sessions": 100,
+        "session_timeout": 3600,
+        "cleanup_interval": 300
+    },
+    "logging": {
+        "level": "INFO",
+        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        "file": "app.log"
+    }
+} 

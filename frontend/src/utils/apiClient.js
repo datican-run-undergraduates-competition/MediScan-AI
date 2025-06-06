@@ -1,7 +1,22 @@
 import axios from 'axios';
 
 // Get base API URL from environment or use default
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+const getApiBaseUrl = () => {
+  // Try to get from Vite env
+  if (import.meta.env && import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // Try to get from process.env (for non-Vite builds)
+  if (process.env && process.env.VITE_API_URL) {
+    return process.env.VITE_API_URL;
+  }
+  
+  // Default fallback
+  return 'http://localhost:8000';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Create an axios instance with default config
 const apiClient = axios.create({
