@@ -1,163 +1,176 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { dashboardAPI } from '../services/api';
-import { DashboardStats } from '../types';
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  Container,
+  Grid,
+  Paper,
+  Typography,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CardActions,
+  CircularProgress,
+} from '@mui/material';
+import { useAuth } from '../../contexts/AuthContext';
+import { medicalAnalysisService } from '../../services/medicalAnalysisService';
 
-export default function DashboardPage() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+interface DashboardStats {
+  totalScans: number;
+  pendingAnalysis: number;
+  completedAnalysis: number;
+  recentResults: any[];
+}
+
+export default function Dashboard() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const [stats, setStats] = useState<DashboardStats>({
+    totalScans: 0,
+    pendingAnalysis: 0,
+    completedAnalysis: 0,
+    recentResults: [],
+  });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchDashboardData = async () => {
       try {
-        const data = await dashboardAPI.getStats();
+        const data = await medicalAnalysisService.getDashboardStats();
         setStats(data);
-      } catch (err: any) {
-        setError(err.message || 'Failed to load dashboard stats');
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchStats();
+    fetchDashboardData();
   }, []);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-          <span className="block sm:inline">{error}</span>
-        </div>
-      </div>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '60vh',
+        }}
+      >
+        <CircularProgress />
+      </Box>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        
-        {/* Stats Overview */}
-        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <dt className="text-sm font-medium text-gray-500 truncate">Total Analyses</dt>
-              <dd className="mt-1 text-3xl font-semibold text-gray-900">{stats?.total_analyses}</dd>
-            </div>
-          </div>
-          
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <dt className="text-sm font-medium text-gray-500 truncate">Pending Analyses</dt>
-              <dd className="mt-1 text-3xl font-semibold text-yellow-600">{stats?.pending_analyses}</dd>
-            </div>
-          </div>
-          
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <dt className="text-sm font-medium text-gray-500 truncate">Completed Analyses</dt>
-              <dd className="mt-1 text-3xl font-semibold text-green-600">{stats?.completed_analyses}</dd>
-            </div>
-          </div>
-          
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <dt className="text-sm font-medium text-gray-500 truncate">Failed Analyses</dt>
-              <dd className="mt-1 text-3xl font-semibold text-red-600">{stats?.failed_analyses}</dd>
-            </div>
-          </div>
-        </div>
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Grid container spacing={3}>
+        {/* Welcome Section */}
+        <Grid item xs={12}>
+          <Paper sx={{ p: 3, display: 'flex', flexDirection: 'column' }}>
+            <Typography variant="h4" gutterBottom>
+              Welcome back, {user?.email}
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Here's an overview of your medical scan analysis activity.
+            </Typography>
+          </Paper>
+        </Grid>
 
-        {/* Recent Analyses */}
-        <div className="mt-8">
-          <h2 className="text-lg font-medium text-gray-900">Recent Analyses</h2>
-          <div className="mt-4 bg-white shadow overflow-hidden sm:rounded-md">
-            <ul className="divide-y divide-gray-200">
-              {stats?.recent_analyses.map((analysis) => (
-                <li key={analysis.id}>
-                  <Link href={`/analysis/${analysis.id}`} className="block hover:bg-gray-50">
-                    <div className="px-4 py-4 sm:px-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <p className="text-sm font-medium text-indigo-600 truncate">
-                            {analysis.file_type.toUpperCase()} Analysis
-                          </p>
-                          <div className="ml-2 flex-shrink-0 flex">
-                            <p className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              analysis.status === 'completed' ? 'bg-green-100 text-green-800' :
-                              analysis.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                              analysis.status === 'failed' ? 'bg-red-100 text-red-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
-                              {analysis.status}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="ml-2 flex-shrink-0 flex">
-                          <p className="text-sm text-gray-500">
-                            {new Date(analysis.created_at).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                      {analysis.status === 'completed' && (
-                        <div className="mt-2">
-                          <p className="text-sm text-gray-500">
-                            Confidence: {(analysis.results.confidence * 100).toFixed(1)}%
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                </li>
+        {/* Stats Cards */}
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              <Typography color="text.secondary" gutterBottom>
+                Total Scans
+              </Typography>
+              <Typography variant="h4">{stats.totalScans}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              <Typography color="text.secondary" gutterBottom>
+                Pending Analysis
+              </Typography>
+              <Typography variant="h4">{stats.pendingAnalysis}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              <Typography color="text.secondary" gutterBottom>
+                Completed Analysis
+              </Typography>
+              <Typography variant="h4">{stats.completedAnalysis}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Recent Results */}
+        <Grid item xs={12}>
+          <Paper sx={{ p: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Recent Results
+            </Typography>
+            <Grid container spacing={2}>
+              {stats.recentResults.map((result, index) => (
+                <Grid item xs={12} md={6} key={index}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>
+                        {result.scanType} Analysis
+                      </Typography>
+                      <Typography color="text.secondary">
+                        Date: {new Date(result.timestamp).toLocaleDateString()}
+                      </Typography>
+                      <Typography variant="body2" sx={{ mt: 1 }}>
+                        {result.summary}
+                      </Typography>
+                    </CardContent>
+                    <CardActions>
+                      <Button
+                        size="small"
+                        onClick={() => router.push(`/analysis/${result.id}`)}
+                      >
+                        View Details
+                      </Button>
+                    </CardActions>
+                  </Card>
+                </Grid>
               ))}
-            </ul>
-          </div>
-        </div>
+            </Grid>
+          </Paper>
+        </Grid>
 
         {/* Quick Actions */}
-        <div className="mt-8">
-          <h2 className="text-lg font-medium text-gray-900">Quick Actions</h2>
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Link
-              href="/analysis/xray"
-              className="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              <div className="mt-2 block text-sm font-medium text-gray-900">
-                New X-Ray Analysis
-              </div>
-            </Link>
-            
-            <Link
-              href="/analysis/mri"
-              className="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              <div className="mt-2 block text-sm font-medium text-gray-900">
-                New MRI Analysis
-              </div>
-            </Link>
-            
-            <Link
-              href="/analysis/ct"
-              className="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              <div className="mt-2 block text-sm font-medium text-gray-900">
-                New CT Scan Analysis
-              </div>
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
+        <Grid item xs={12}>
+          <Paper sx={{ p: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Quick Actions
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button
+                variant="contained"
+                onClick={() => router.push('/upload')}
+              >
+                Upload New Scan
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => router.push('/history')}
+              >
+                View History
+              </Button>
+            </Box>
+          </Paper>
+        </Grid>
+      </Grid>
+    </Container>
   );
 } 

@@ -38,6 +38,10 @@ export interface AnalysisResult {
   timestamp: string;
   pattern_matches: PatternMatch[];
   overall_confidence: number;
+  primary_diagnosis: PrimaryDiagnosis;
+  differential_diagnoses: DifferentialDiagnosis[];
+  key_findings: string[];
+  recommended_tests: string[];
   quality_metrics: {
     image_quality: number;
     analysis_quality: number;
@@ -81,6 +85,10 @@ export interface AnalysisResponse {
   success: boolean;
   data: AnalysisResult;
   message: string;
+}
+
+export interface DashboardStats {
+  // Define the structure of the DashboardStats interface
 }
 
 export class MedicalAnalysisService extends EventEmitter {
@@ -235,6 +243,16 @@ export class MedicalAnalysisService extends EventEmitter {
       return response.data.rarity_score;
     } catch (error) {
       console.error('Error getting rarity score:', error);
+      throw error;
+    }
+  }
+
+  async getDashboardStats(): Promise<DashboardStats> {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/analysis/dashboard-stats`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
       throw error;
     }
   }

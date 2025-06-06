@@ -13,6 +13,19 @@ const nextConfig = {
       },
     ];
   },
+  webpack: (config, { isServer }) => {
+    // Add a rule to handle react-icons
+    config.module.rules.push({
+      test: /react-icons\/.*/,
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: ['@babel/preset-react'],
+        },
+      },
+    });
+    return config;
+  },
 };
 
 module.exports = nextConfig; 

@@ -178,11 +178,11 @@ const MedicalScanUpload: React.FC = () => {
         preview: URL.createObjectURL(file),
         metadata: {
           scanType: '',
-          modality: 'x-ray',
+          modality: 'x-ray' as const,
         },
-        status: 'pending',
+        status: 'pending' as const,
         progress: 0,
-      });
+      }) as FileWithPreview;
       return fileWithPreview;
     });
     setFiles(prev => [...prev, ...filesWithPreview]);
@@ -532,7 +532,7 @@ const MedicalScanUpload: React.FC = () => {
                   {realTimeUpdates.map((update, index) => (
                     <Fade in key={index}>
                       <Alert
-                        severity={update.type === 'error' ? 'error' : 'info'}
+                        severity={update.type === 'status' && update.data.status === 'failed' ? 'error' : 'info'}
                         sx={{ mb: 1 }}
                       >
                         {update.data.message}

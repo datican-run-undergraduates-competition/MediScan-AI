@@ -14,6 +14,12 @@ export default function AnalysisResultPage() {
 
   useEffect(() => {
     const fetchAnalysis = async () => {
+      if (!params?.id) {
+        setError('Invalid analysis ID');
+        setLoading(false);
+        return;
+      }
+
       try {
         const data = await analysisAPI.getAnalysis(Number(params.id));
         setAnalysis(data);
@@ -25,7 +31,7 @@ export default function AnalysisResultPage() {
     };
 
     fetchAnalysis();
-  }, [params.id]);
+  }, [params?.id]);
 
   if (loading) {
     return (

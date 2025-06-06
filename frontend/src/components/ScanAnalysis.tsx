@@ -302,7 +302,7 @@ const ScanAnalysis: React.FC<ScanAnalysisProps> = ({
         {realTimeUpdates.map((update, index) => (
           <Fade in key={index}>
             <Alert
-              severity={update.type === 'error' ? 'error' : 'info'}
+              severity={update.type === 'status' && update.data.status === 'failed' ? 'error' : 'info'}
               sx={{ mb: 1 }}
             >
               {update.data.message}

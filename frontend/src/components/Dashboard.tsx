@@ -35,6 +35,9 @@ import {
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 
+// Define the status type
+type StatusType = 'success' | 'warning' | 'error' | 'info';
+
 // Styled components
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -48,7 +51,13 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   },
 }));
 
-const StatusChip = styled(Chip)(({ theme, status }) => ({
+interface StatusChipProps {
+  status: StatusType;
+}
+
+const StatusChip = styled(Chip, {
+  shouldForwardProp: (prop) => prop !== 'status',
+})<StatusChipProps>(({ theme, status }) => ({
   backgroundColor: 
     status === 'success' ? theme.palette.success.light :
     status === 'warning' ? theme.palette.warning.light :

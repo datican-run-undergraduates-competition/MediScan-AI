@@ -15,7 +15,9 @@ import {
   ListItemText,
   ListItemIcon,
   Collapse,
-  Paper,
+  Paper
+} from '@mui/material';
+import {
   Timeline,
   TimelineItem,
   TimelineSeparator,
@@ -23,7 +25,7 @@ import {
   TimelineContent,
   TimelineDot,
   TimelineOppositeContent
-} from '@mui/material';
+} from '@mui/lab';
 import {
   Warning as WarningIcon,
   CheckCircle as CheckCircleIcon,

@@ -39,6 +39,29 @@ export interface AnalysisResponse {
     findings: string[];
     confidence: number;
     recommendations: string[];
+    primary_diagnosis: {
+      condition: string;
+      confidence: number;
+      severity: string;
+      urgency_level: string;
+    };
+    differential_diagnoses: Array<{
+      condition: string;
+      confidence: number;
+    }>;
+    key_findings: string[];
+    recommended_tests: string[];
+    pattern_matches: Array<{
+      condition: string;
+      description: string;
+      confidence_factors: Record<string, number>;
+      matched_patterns: string[];
+      temporal_factors: Record<string, number>;
+      progression_score: number;
+      rarity_score: number;
+      severity_level: 'mild' | 'moderate' | 'severe';
+      recommended_actions: string[];
+    }>;
   };
   created_at: string;
 }
