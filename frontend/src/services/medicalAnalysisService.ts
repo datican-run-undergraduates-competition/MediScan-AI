@@ -88,7 +88,15 @@ export interface AnalysisResponse {
 }
 
 export interface DashboardStats {
-  // Define the structure of the DashboardStats interface
+  totalScans: number;
+  pendingAnalysis: number;
+  completedAnalysis: number;
+  recentResults: Array<{
+    id: string;
+    scanType: string;
+    timestamp: string;
+    summary: string;
+  }>;
 }
 
 export class MedicalAnalysisService extends EventEmitter {
@@ -253,6 +261,52 @@ export class MedicalAnalysisService extends EventEmitter {
       return response.data;
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
+      throw error;
+    }
+  }
+
+  async getAnalysisHistory(): Promise<AnalysisResult[]> {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/medical-analysis/history`);
+      return response.data.data;
+    } catch (error) {
+      console.error('Error fetching analysis history:', error);
+      throw error;
+    }
+  }
+
+  async uploadScan(formData: FormData): Promise<any> {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/medical-analysis/upload-scan`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading scan:', error);
+      throw error;
+    }
+  }
+
+  async uploadReport(formData: FormData): Promise<any> {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/medical-analysis/upload-report`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading report:', error);
       throw error;
     }
   }

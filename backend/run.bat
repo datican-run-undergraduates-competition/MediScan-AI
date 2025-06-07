@@ -9,6 +9,15 @@ if errorlevel 1 (
 )
 
 
+
+
+REM Create database if it doesn't exist
+echo Creating database if it doesn't exist...
+psql -U postgres -c "CREATE DATABASE ai_medical_system;" >nul 2>&1
+if errorlevel 1 (
+    echo Failed to create database. It might already exist.
+)
+
 REM Upgrade pip
 python -m pip install --upgrade pip
 
