@@ -7,12 +7,15 @@ import logging
 from typing import Generator
 
 # Load environment variables
-load_dotenv()
+try:
+    load_dotenv()
+except Exception as e:
+    logging.warning(f"Failed to load .env file: {e}")
 
 # Database URL configuration
 DATABASE_URL = os.getenv(
     "DATABASE_URL", 
-    "sqlite:///./mediscan_ai.db"
+    "postgresql://postgres:Abioye@16@localhost:5432/ai_med_system"
 )
 
 # SQLAlchemy engine configuration
