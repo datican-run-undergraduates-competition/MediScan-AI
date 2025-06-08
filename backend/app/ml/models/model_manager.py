@@ -32,8 +32,11 @@ class ModelManager:
     def __init__(self):
         self.models: Dict[str, Any] = {}
         self.tokenizers: Dict[str, Any] = {}
+        self.feature_extractors: Dict[str, Any] = {}
         self.weights: Dict[str, float] = {}
         self.medical_kb = None
+        self.cache_dir = Path("model_cache")
+        self.cache_dir.mkdir(exist_ok=True)
         self._initialize_models()
 
     def _initialize_models(self):
@@ -79,31 +82,61 @@ class ModelManager:
         except Exception as e:
             logger.error(f"Error loading base models: {str(e)}")
 
-    def _load_model_with_fallback(self, model_type: str, model_config: Dict):
-        """Load a model with fallback options."""
+    def _load_model_with_fallback(
+        self,
+        model_id: str,
+        fallback_id: str,
+        model_type: str = "model"
+    ) -> Optional[Any]:
+        """Load a model with fallback option."""
         try:
             # Try primary model
-            model_id = model_config["model_id"]
-            try:
-                self._load_model(model_type, model_id)
-                return
-            except Exception as e:
-                logger.warning(f"Error loading primary model {model_id}: {str(e)}")
-            
-            # Try fallback model
-            fallback_id = model_config["fallback_model_id"]
-            if fallback_id != model_id:
-                try:
-                    self._load_model(model_type, fallback_id)
-                    return
-                except Exception as e:
-                    logger.warning(f"Error loading fallback model {fallback_id}: {str(e)}")
-            
-            # If both fail, log error
-            logger.error(f"Failed to load both primary and fallback models for {model_type}")
-            
+            if model_type == "model":
+                return AutoModelForImageClassification.from_pretrained(
+                    model_id,
+                    trust_remote_code=True,
+                    cache_dir=self.cache_dir
+                )
+            elif model_type == "tokenizer":
+                return AutoTokenizer.from_pretrained(
+                    model_id,
+                    trust_remote_code=True,
+                    cache_dir=self.cache_dir
+                )
+            elif model_type == "feature_extractor":
+                return AutoFeatureExtractor.from_pretrained(
+                    model_id,
+                    trust_remote_code=True,
+                    cache_dir=self.cache_dir
+                )
         except Exception as e:
-            logger.error(f"Error in model loading process for {model_type}: {str(e)}")
+            logger.warning(f"Failed to load {model_type} {model_id}: {str(e)}")
+            
+            if model_id != fallback_id:
+                logger.info(f"Attempting to load fallback {model_type} {fallback_id}")
+                try:
+                    if model_type == "model":
+                        return AutoModelForImageClassification.from_pretrained(
+                            fallback_id,
+                            trust_remote_code=True,
+                            cache_dir=self.cache_dir
+                        )
+                    elif model_type == "tokenizer":
+                        return AutoTokenizer.from_pretrained(
+                            fallback_id,
+                            trust_remote_code=True,
+                            cache_dir=self.cache_dir
+                        )
+                    elif model_type == "feature_extractor":
+                        return AutoFeatureExtractor.from_pretrained(
+                            fallback_id,
+                            trust_remote_code=True,
+                            cache_dir=self.cache_dir
+                        )
+                except Exception as fallback_error:
+                    logger.error(f"Failed to load fallback {model_type} {fallback_id}: {str(fallback_error)}")
+                    
+        return None
 
     def _load_model(self, model_type: str, model_id: str):
         """Load a specific model and its tokenizer."""
