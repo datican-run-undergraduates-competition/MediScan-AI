@@ -74,7 +74,7 @@ class ModelManager:
                 
         except Exception as e:
             self.logger.error(f"Error setting up quantization: {str(e)}")
-            raise
+            self.quantization_config = None
             
     def _setup_cache_directory(self):
         """Setup cache directory with cloud deployment optimization."""
@@ -102,7 +102,8 @@ class ModelManager:
             
         except Exception as e:
             self.logger.error(f"Error setting up cache directory: {str(e)}")
-            raise
+            self.cache_dir = Path('models/cache')
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
             
     def _clean_cache_if_needed(self):
         """Clean cache if it exceeds size limit or cleanup interval has passed."""
@@ -134,7 +135,6 @@ class ModelManager:
                 
         except Exception as e:
             self.logger.error(f"Error cleaning cache: {str(e)}")
-            raise
             
     def _load_model_with_quantization(self, model_name: str, model_class, **kwargs):
         """Load model with quantization if configured."""
@@ -154,7 +154,7 @@ class ModelManager:
                 )
         except Exception as e:
             self.logger.error(f"Error loading model {model_name}: {str(e)}")
-            raise
+            return None
             
     def _initialize_models(self):
         """Initialize all required models for different tasks."""
@@ -168,7 +168,6 @@ class ModelManager:
             self.logger.info("Successfully initialized all models")
         except Exception as e:
             self.logger.error(f"Error initializing models: {str(e)}")
-            raise
             
     def _initialize_base_models(self):
         """Initialize base models that can be used across tasks."""
@@ -178,108 +177,135 @@ class ModelManager:
                 model_id = model_config['model_id']
                 weight = model_config['weight']
                 
-                if model_name in ['medical_8b', 'clinical_bert']:
-                    # Load language models
-                    tokenizer = AutoTokenizer.from_pretrained(model_id)
-                    model = self._load_model_with_quantization(
-                        model_id,
-                        AutoModelForCausalLM if model_name == 'medical_8b' else BertModel
-                    )
-                else:
-                    # Load vision models
-                    tokenizer = AutoFeatureExtractor.from_pretrained(model_id)
-                    model = self._load_model_with_quantization(
-                        model_id,
-                        AutoModelForImageClassification
-                    )
-                
-                self.models[model_name] = model
-                self.tokenizers[model_name] = tokenizer
-                self.model_weights[model_name] = weight
-                
+                try:
+                    if model_name in ['medical_8b', 'clinical_bert']:
+                        # Load language models
+                        self.logger.info(f"Loading language model: {model_id}")
+                        tokenizer = AutoTokenizer.from_pretrained(
+                            model_id,
+                            cache_dir=self.cache_dir,
+                            trust_remote_code=True
+                        )
+                        model = self._load_model_with_quantization(
+                            model_id,
+                            AutoModelForCausalLM if model_name == 'medical_8b' else BertModel,
+                            trust_remote_code=True
+                        )
+                    else:
+                        # Load vision models
+                        self.logger.info(f"Loading vision model: {model_id}")
+                        tokenizer = AutoFeatureExtractor.from_pretrained(
+                            model_id,
+                            cache_dir=self.cache_dir,
+                            trust_remote_code=True
+                        )
+                        model = self._load_model_with_quantization(
+                            model_id,
+                            AutoModelForImageClassification,
+                            trust_remote_code=True
+                        )
+                    
+                    if model is not None:
+                        self.models[model_name] = model
+                        self.tokenizers[model_name] = tokenizer
+                        self.model_weights[model_name] = weight
+                        self.logger.info(f"Successfully loaded model {model_name}")
+                    else:
+                        self.logger.warning(f"Failed to load model {model_name}")
+                        
+                except Exception as e:
+                    self.logger.error(f"Error loading model {model_name}: {str(e)}")
+                    continue
+                    
         except Exception as e:
             self.logger.error(f"Error initializing base models: {str(e)}")
-            raise
+            # Initialize with empty models instead of failing
+            self.models = {}
+            self.tokenizers = {}
+            self.model_weights = {}
             
     def _initialize_task_models(self):
-        """Initialize models for specific medical tasks."""
+        """Initialize task-specific models."""
         try:
-            # Initialize task-specific models based on task weights
             for task, weights in self.config['task_weights'].items():
-                self.task_specific_models[task] = {
-                    model_name: self.models[model_name]
-                    for model_name in weights.keys()
-                    if model_name in self.models
-                }
-                
+                task_models = {}
+                for model_name, weight in weights.items():
+                    if model_name in self.models:
+                        task_models[model_name] = {
+                            'model': self.models[model_name],
+                            'weight': weight
+                        }
+                if task_models:
+                    self.task_specific_models[task] = task_models
+                    
         except Exception as e:
             self.logger.error(f"Error initializing task models: {str(e)}")
-            raise
             
     def get_model(self, task: str) -> Union[torch.nn.Module, Dict[str, torch.nn.Module]]:
-        """Get model(s) for a specific task."""
+        """Get model for specific task."""
         return self.task_specific_models.get(task, {})
         
     def get_tokenizer(self, model_name: str) -> Optional[AutoTokenizer]:
-        """Get tokenizer for a specific model."""
+        """Get tokenizer for specific model."""
         return self.tokenizers.get(model_name)
         
     def ensemble_predict(self, task: str, input_data: Dict) -> Dict:
         """Make ensemble prediction using multiple models."""
         try:
-            # Get task-specific models
-            models = self._get_task_models(task)
-            if not models:
-                raise ValueError(f"No models available for task: {task}")
+            task_models = self._get_task_models(task)
+            if not task_models:
+                return {'error': 'No models available for task'}
                 
-            # Get predictions from each model
             predictions = []
             weights = []
             confidences = []
             
-            for model_name, model in models.items():
-                # Get model weight
-                weight = self._calculate_model_weight(model_name, task)
+            for model_name, model_info in task_models.items():
+                model = model_info['model']
+                weight = model_info['weight']
                 
-                # Make prediction
-                prediction = self._make_prediction(model, input_data)
+                try:
+                    # Make prediction
+                    prediction = model(**input_data)
+                    confidence = self._calculate_prediction_confidence(prediction)
+                    
+                    predictions.append(prediction)
+                    weights.append(weight)
+                    confidences.append(confidence)
+                    
+                except Exception as e:
+                    self.logger.error(f"Error making prediction with {model_name}: {str(e)}")
+                    continue
+                    
+            if not predictions:
+                return {'error': 'No valid predictions'}
                 
-                # Calculate confidence
-                confidence = self._calculate_prediction_confidence(prediction)
-                
-                predictions.append(prediction)
-                weights.append(weight)
-                confidences.append(confidence)
-                
-            # Combine predictions using weighted ensemble
-            final_prediction = self._weighted_ensemble(
-                predictions,
-                weights,
-                confidences
-            )
-            
+            # Combine predictions
+            final_prediction = self._weighted_ensemble(predictions, weights, confidences)
             return final_prediction
             
         except Exception as e:
             self.logger.error(f"Error in ensemble prediction: {str(e)}")
-            raise
+            return {'error': str(e)}
             
     def _get_task_models(self, task: str) -> Dict[str, torch.nn.Module]:
-        """Get models for a specific task."""
+        """Get models for specific task."""
         return self.task_specific_models.get(task, {})
         
     def _calculate_model_weight(self, model_name: str, task: str) -> float:
-        """Calculate weight for a model in a specific task."""
-        task_weights = self.config['task_weights'].get(task, {})
-        return task_weights.get(model_name, 0.0)
+        """Calculate weight for model in ensemble."""
+        return self.config['task_weights'].get(task, {}).get(model_name, 0.0)
         
     def _calculate_prediction_confidence(self, prediction: Dict) -> float:
-        """Calculate confidence score for a prediction."""
-        # Simple confidence calculation based on prediction probabilities
-        if 'probabilities' in prediction:
-            return float(max(prediction['probabilities'].values()))
-        return 0.5  # Default confidence
-        
+        """Calculate confidence score for prediction."""
+        try:
+            if 'logits' in prediction:
+                probs = torch.softmax(prediction['logits'], dim=-1)
+                return float(torch.max(probs))
+            return 0.5
+        except Exception:
+            return 0.5
+            
     def _weighted_ensemble(
         self,
         predictions: List[Dict],
@@ -291,7 +317,7 @@ class ModelManager:
             # Normalize weights
             total_weight = sum(w * c for w, c in zip(weights, confidences))
             if total_weight == 0:
-                return predictions[0] if predictions else {}
+                return {'error': 'No valid predictions'}
                 
             normalized_weights = [w * c / total_weight for w, c in zip(weights, confidences)]
             
@@ -307,192 +333,157 @@ class ModelManager:
             
         except Exception as e:
             self.logger.error(f"Error in weighted ensemble: {str(e)}")
-            raise
+            return {'error': str(e)}
             
     def fine_tune_model(self, task: str, training_data: Dict, validation_data: Dict = None):
-        """Fine-tune a model for a specific task."""
+        """Fine-tune model for specific task."""
         try:
-            # Get base model
-            model = self.task_specific_models.get(task)
-            if not model:
-                raise ValueError(f"No model found for task: {task}")
+            task_models = self._get_task_models(task)
+            if not task_models:
+                raise ValueError(f"No models available for task {task}")
                 
-            # Setup training arguments
-            training_args = TrainingArguments(
-                output_dir=f"models/fine_tuned/{task}",
-                num_train_epochs=3,
-                per_device_train_batch_size=8,
-                per_device_eval_batch_size=8,
-                warmup_steps=500,
-                weight_decay=0.01,
-                logging_dir=f"logs/fine_tuned/{task}",
-                logging_steps=100,
-                evaluation_strategy="steps" if validation_data else "no",
-                eval_steps=500 if validation_data else None,
-                save_strategy="steps",
-                save_steps=500,
-                load_best_model_at_end=True if validation_data else False
-            )
-            
-            # Setup data collator based on task type
-            if isinstance(model, AutoModelForSeq2SeqLM):
-                data_collator = DataCollatorForSeq2Seq(
-                    tokenizer=self.tokenizers.get('medical_8b'),
-                    model=model
-                )
-            else:
-                data_collator = DataCollatorForLanguageModeling(
-                    tokenizer=self.tokenizers.get('medical_8b'),
-                    mlm=False
+            for model_name, model_info in task_models.items():
+                model = model_info['model']
+                
+                # Setup training arguments
+                training_args = TrainingArguments(
+                    output_dir=f"models/fine_tuned/{task}/{model_name}",
+                    num_train_epochs=3,
+                    per_device_train_batch_size=8,
+                    per_device_eval_batch_size=8,
+                    warmup_steps=500,
+                    weight_decay=0.01,
+                    logging_dir=f"logs/{task}/{model_name}",
+                    logging_steps=10,
+                    evaluation_strategy="steps",
+                    eval_steps=100,
+                    save_strategy="steps",
+                    save_steps=100,
+                    load_best_model_at_end=True
                 )
                 
-            # Initialize trainer
-            trainer = Trainer(
-                model=model,
-                args=training_args,
-                train_dataset=training_data,
-                eval_dataset=validation_data,
-                data_collator=data_collator
-            )
-            
-            # Train model
-            trainer.train()
-            
-            # Save fine-tuned model
-            model_path = f"models/fine_tuned/{task}"
-            trainer.save_model(model_path)
-            
-            # Update model reference
-            self.fine_tuned_models[task] = model_path
-            
-            return model_path
-            
+                # Setup trainer
+                trainer = Trainer(
+                    model=model,
+                    args=training_args,
+                    train_dataset=training_data,
+                    eval_dataset=validation_data,
+                    data_collator=DataCollatorForLanguageModeling(
+                        tokenizer=self.get_tokenizer(model_name)
+                    )
+                )
+                
+                # Train model
+                trainer.train()
+                
+                # Save fine-tuned model
+                model.save_pretrained(f"models/fine_tuned/{task}/{model_name}")
+                
         except Exception as e:
-            self.logger.error(f"Error fine-tuning model for task {task}: {str(e)}")
+            self.logger.error(f"Error fine-tuning model: {str(e)}")
             raise
             
     def evaluate_model(self, task: str, test_data: Dict) -> Dict:
-        """Evaluate a model's performance."""
+        """Evaluate model performance on test data."""
         try:
-            # Get model
-            model = self.task_specific_models.get(task)
-            if not model:
-                raise ValueError(f"No model found for task: {task}")
+            task_models = self._get_task_models(task)
+            if not task_models:
+                raise ValueError(f"No models available for task {task}")
                 
-            # Setup evaluation metrics
-            metrics = {}
-            
-            # Evaluate based on task type
-            if isinstance(model, AutoModelForSequenceClassification):
-                predictions = model.predict(test_data)
-                metrics['accuracy'] = np.mean(predictions.predictions.argmax(axis=-1) == test_data['labels'])
-                metrics['f1'] = f1_score(test_data['labels'], predictions.predictions.argmax(axis=-1), average='weighted')
+            results = {}
+            for model_name, model_info in task_models.items():
+                model = model_info['model']
                 
-            elif isinstance(model, AutoModelForTokenClassification):
-                predictions = model.predict(test_data)
-                metrics['token_accuracy'] = np.mean(predictions.predictions.argmax(axis=-1) == test_data['labels'])
+                # Setup trainer for evaluation
+                trainer = Trainer(
+                    model=model,
+                    args=TrainingArguments(
+                        output_dir=f"models/evaluation/{task}/{model_name}",
+                        per_device_eval_batch_size=8
+                    ),
+                    eval_dataset=test_data,
+                    data_collator=DataCollatorForLanguageModeling(
+                        tokenizer=self.get_tokenizer(model_name)
+                    )
+                )
                 
-            elif isinstance(model, AutoModelForSeq2SeqLM):
-                predictions = model.predict(test_data)
-                metrics['bleu'] = compute_bleu(predictions.predictions, test_data['labels'])
-                metrics['rouge'] = compute_rouge(predictions.predictions, test_data['labels'])
+                # Evaluate model
+                eval_results = trainer.evaluate()
+                results[model_name] = eval_results
                 
-            return metrics
+            return results
             
         except Exception as e:
-            self.logger.error(f"Error evaluating model for task {task}: {str(e)}")
+            self.logger.error(f"Error evaluating model: {str(e)}")
             raise
             
     def generate_prescription(self, patient_data: Dict, diagnosis: str) -> Dict:
-        """Generate a prescription based on patient data and diagnosis."""
+        """Generate prescription based on patient data and diagnosis."""
         try:
-            # Get relevant models
-            recommendation_model = self.task_specific_models['drug_recommendation']
-            dosage_model = self.task_specific_models['dosage_calculation']
-            interaction_model = self.task_specific_models['drug_interaction']
-            contraindication_model = self.task_specific_models['contraindication_check']
-            
-            # Generate drug recommendations
-            recommendations = recommendation_model.predict({
+            # Get medication recommendations
+            recommendations = self.ensemble_predict('treatment', {
                 'patient_data': patient_data,
                 'diagnosis': diagnosis
             })
             
-            # Calculate dosages
-            dosages = dosage_model.predict({
-                'patient_data': patient_data,
-                'recommendations': recommendations
-            })
+            if 'error' in recommendations:
+                return recommendations
+                
+            # Get medication information
+            medications = {}
+            for med in recommendations.get('medications', []):
+                med_info = self.knowledge_base.get_medication_info(med)
+                if med_info:
+                    medications[med] = med_info
+                    
+            # Generate warnings
+            warnings = self._generate_warnings(
+                recommendations.get('interactions', {}),
+                recommendations.get('contraindications', {})
+            )
             
-            # Check for drug interactions
-            interactions = interaction_model.predict({
-                'patient_data': patient_data,
-                'recommendations': recommendations
-            })
+            # Generate instructions
+            instructions = self._generate_instructions(
+                recommendations.get('recommendations', {}),
+                recommendations.get('dosages', {})
+            )
             
-            # Check for contraindications
-            contraindications = contraindication_model.predict({
-                'patient_data': patient_data,
-                'recommendations': recommendations
-            })
-            
-            # Generate prescription
-            prescription = {
-                'medications': recommendations.predictions,
-                'dosages': dosages.predictions,
-                'interactions': interactions.predictions,
-                'contraindications': contraindications.predictions,
-                'warnings': self._generate_warnings(interactions, contraindications),
-                'instructions': self._generate_instructions(recommendations, dosages)
+            return {
+                'medications': medications,
+                'warnings': warnings,
+                'instructions': instructions
             }
-            
-            return prescription
             
         except Exception as e:
             self.logger.error(f"Error generating prescription: {str(e)}")
-            raise
+            return {'error': str(e)}
             
     def _generate_warnings(self, interactions: Dict, contraindications: Dict) -> List[str]:
         """Generate warnings based on interactions and contraindications."""
-        try:
-            warnings = []
+        warnings = []
+        
+        # Add interaction warnings
+        for med1, med2 in interactions.items():
+            warnings.append(f"Warning: {med1} may interact with {med2}")
             
-            # Add interaction warnings
-            if interactions.get('predictions'):
-                for interaction in interactions['predictions']:
-                    if interaction['severity'] > 0.7:  # High severity threshold
-                        warnings.append(f"Severe interaction warning: {interaction['description']}")
-                        
-            # Add contraindication warnings
-            if contraindications.get('predictions'):
-                for contraindication in contraindications['predictions']:
-                    if contraindication['severity'] > 0.7:  # High severity threshold
-                        warnings.append(f"Contraindication warning: {contraindication['description']}")
-                        
-            return warnings
-            
-        except Exception as e:
-            self.logger.error(f"Error generating warnings: {str(e)}")
-            raise
-            
-    def _generate_instructions(self, recommendations: Dict, dosages: Dict) -> List[str]:
-        """Generate medication instructions."""
-        try:
-            instructions = []
-            
-            # Generate instructions for each medication
-            for med, dosage in zip(recommendations['predictions'], dosages['predictions']):
-                instruction = {
-                    'medication': med['name'],
-                    'dosage': dosage['amount'],
-                    'frequency': dosage['frequency'],
-                    'duration': dosage['duration'],
-                    'special_instructions': med.get('special_instructions', [])
-                }
-                instructions.append(instruction)
+        # Add contraindication warnings
+        for med, conditions in contraindications.items():
+            for condition in conditions:
+                warnings.append(f"Warning: {med} is contraindicated in {condition}")
                 
-            return instructions
+        return warnings
+        
+    def _generate_instructions(self, recommendations: Dict, dosages: Dict) -> List[str]:
+        """Generate instructions based on recommendations and dosages."""
+        instructions = []
+        
+        # Add dosage instructions
+        for med, dosage in dosages.items():
+            instructions.append(f"Take {med} {dosage['amount']} {dosage['unit']} {dosage['frequency']}")
             
-        except Exception as e:
-            self.logger.error(f"Error generating instructions: {str(e)}")
-            raise 
+        # Add general instructions
+        for med, recs in recommendations.items():
+            for rec in recs:
+                instructions.append(f"For {med}: {rec}")
+                
+        return instructions 

@@ -16,19 +16,16 @@ class ModelManager:
         self.model_configs = {
             'image': {
                 'xray': {
-                    'name': 'mediscan/xray-specialized-vit',
-                    'type': 'vit',
-                    'cache_key': 'xray_vit'
+                    'name': 'microsoft/resnet-50',
+                    'weight': 0.4
                 },
                 'mri': {
-                    'name': 'mediscan/mri-specialized-vit',
-                    'type': 'vit',
-                    'cache_key': 'mri_vit'
+                    'name': 'microsoft/resnet-50',
+                    'weight': 0.4
                 },
                 'ct': {
-                    'name': 'mediscan/ct-specialized-vit',
-                    'type': 'vit',
-                    'cache_key': 'ct_vit'
+                    'name': 'microsoft/resnet-50',
+                    'weight': 0.4
                 }
             },
             'text': {

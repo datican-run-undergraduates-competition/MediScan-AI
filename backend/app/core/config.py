@@ -50,9 +50,9 @@ class Settings(BaseSettings):
     
     # HuggingFace settings
     HF_TOKEN: str = os.getenv("HF_TOKEN", "")
-    HF_XRAY_MODEL: str = os.getenv("HF_XRAY_MODEL", "mediscan/xray-specialized-vit")
-    HF_MRI_MODEL: str = os.getenv("HF_MRI_MODEL", "mediscan/mri-specialized-vit")
-    HF_CT_MODEL: str = os.getenv("HF_CT_MODEL", "mediscan/ct-specialized-vit")
+    HF_XRAY_MODEL: str = os.getenv("HF_XRAY_MODEL", "microsoft/resnet-50")
+    HF_MRI_MODEL: str = os.getenv("HF_MRI_MODEL", "microsoft/resnet-50")
+    HF_CT_MODEL: str = os.getenv("HF_CT_MODEL", "microsoft/resnet-50")
     
     class Config:
         case_sensitive = True
