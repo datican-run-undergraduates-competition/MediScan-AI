@@ -1,25 +1,38 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
 from fastapi.responses import JSONResponse, FileResponse
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 import io
 from PIL import Image
 import numpy as np
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image as RLImage
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
 import tempfile
 import os
 from datetime import datetime
 import json
+import logging
+
+# Try to import reportlab, but make it optional
+try:
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import letter
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image as RLImage
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    REPORTLAB_AVAILABLE = True
+except ImportError:
+    REPORTLAB_AVAILABLE = False
+    logger = logging.getLogger(__name__)
+    logger.warning("ReportLab not available. PDF generation will be disabled.")
 
 from ...ml.image_processor import ImageProcessor
 from ...ml.text_processor import TextProcessor
 from ...ml.feature_fusion import MultiModalFusion
 from ...ml.decision_engine import DecisionEngine
+from ...services.analysis import analysis_service
+from ...core.auth import get_current_user
+from ...models.user import User
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 # Initialize ML components
 image_processor = ImageProcessor()
@@ -29,6 +42,9 @@ decision_engine = DecisionEngine()
 
 def generate_pdf_report(image_path: str, analysis_results: dict, modality: str) -> str:
     """Generate a PDF report from analysis results."""
+    if not REPORTLAB_AVAILABLE:
+        raise ImportError("ReportLab is not available. Please install it to generate PDF reports.")
+        
     # Create a temporary file for the PDF
     temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
     doc = SimpleDocTemplate(temp_pdf.name, pagesize=letter)
@@ -107,95 +123,74 @@ def generate_pdf_report(image_path: str, analysis_results: dict, modality: str) 
 
 @router.post("/analyze")
 async def analyze_medical_data(
-    image: UploadFile = File(...),
-    report: Optional[UploadFile] = File(None),
-    modality: str = Form(...),
-    target_conditions: Optional[List[str]] = Form(None)
-):
-    """
-    Analyze medical image and optional report for disease detection.
-    
-    Args:
-        image: Medical image file (X-ray, MRI, or CT scan)
-        report: Optional medical report text file
-        modality: Type of medical image ('xray', 'mri', or 'ct')
-        target_conditions: Optional list of conditions to check for
-        
-    Returns:
-        Analysis results including predictions and explanations
-    """
+    file: UploadFile = File(...),
+    analysis_type: str = Form(...),
+    current_user: User = Depends(get_current_user)
+) -> Dict[str, Any]:
+    """Analyze medical data (images, reports, etc.)."""
     try:
-        # Validate modality
-        if modality not in ["xray", "mri", "ct"]:
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid modality. Must be one of: xray, mri, ct"
-            )
+        # Read file content
+        content = await file.read()
         
-        # Save uploaded image temporarily
-        temp_image = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(image.filename)[1])
-        content = await image.read()
-        temp_image.write(content)
-        temp_image.close()
-
-        # Process image
-        pil_image = Image.open(io.BytesIO(content))
-        image_features = image_processor.process_image(pil_image, modality)
-        
-        # Process report if provided
-        text_features = None
-        if report:
-            report_content = await report.read()
-            report_text = report_content.decode("utf-8")
-            text_features = text_processor.analyze_report(report_text)
-        
-        # Fuse features
-        if text_features:
-            fused_features = feature_fusion.fuse_features(
-                image_features,
-                text_features
-            )
-        else:
-            # Use only image features if no report is provided
-            fused_features = {
-                "fused_features": image_features["features"],
-                "correlation_scores": {
-                    "mean_correlation": 1.0,
-                    "max_correlation": 1.0,
-                    "correlation_std": 0.0
-                },
-                "modality_correlations": {}
-            }
-        
-        # Filter target conditions if specified
-        if target_conditions:
-            decision_engine.conditions = {
-                k: v for k, v in decision_engine.conditions.items()
-                if k in target_conditions
-            }
-        
-        # Make predictions
-        results = decision_engine.analyze(fused_features)
-        
-        # Generate heatmap for visualization
-        heatmap = image_processor.generate_heatmap(
-            image_features["attention_maps"],
-            pil_image.size[::-1]  # Convert (width, height) to (height, width)
+        # Process the analysis
+        result = await analysis_service.analyze_data(
+            content=content,
+            file_type=file.content_type,
+            analysis_type=analysis_type,
+            user_id=current_user.id
         )
         
-        return {
-            "status": "success",
-            "results": results,
-            "visualization": {
-                "heatmap": heatmap.tolist(),
-                "image_size": pil_image.size
-            }
-        }
+        return result
         
     except Exception as e:
+        logger.error(f"Error in analysis: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail=f"Error processing medical data: {str(e)}"
+            detail=f"Analysis failed: {str(e)}"
+        )
+
+@router.get("/results/{analysis_id}")
+async def get_analysis_results(
+    analysis_id: str,
+    current_user: User = Depends(get_current_user)
+) -> Dict[str, Any]:
+    """Get analysis results."""
+    try:
+        result = await analysis_service.get_results(analysis_id, current_user.id)
+        return result
+    except Exception as e:
+        logger.error(f"Error getting results: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get results: {str(e)}"
+        )
+
+@router.post("/batch-analyze")
+async def batch_analyze(
+    files: List[UploadFile] = File(...),
+    analysis_type: str = Form(...),
+    current_user: User = Depends(get_current_user)
+) -> Dict[str, List[Dict[str, Any]]]:
+    """Analyze multiple medical files in batch."""
+    try:
+        results = []
+        for file in files:
+            content = await file.read()
+            result = await analysis_service.analyze_data(
+                content=content,
+                file_type=file.content_type,
+                analysis_type=analysis_type,
+                user_id=current_user.id
+            )
+            results.append(result)
+        
+        return {"results": results}
+        
+    except Exception as e:
+        logger.error(f"Error in batch analysis: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Batch analysis failed: {str(e)}"
         )
 
 @router.post("/export-pdf")
@@ -207,6 +202,12 @@ async def export_pdf_report(
     """
     Generate and return a PDF report of the analysis results.
     """
+    if not REPORTLAB_AVAILABLE:
+        raise HTTPException(
+            status_code=501,
+            detail="PDF generation is not available. Please install reportlab package."
+        )
+        
     try:
         # Save uploaded image temporarily
         temp_image = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(image.filename)[1])

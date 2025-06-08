@@ -17,6 +17,10 @@ import auth
 from app.core.database import engine, get_db
 import json
 import time
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 from app.core.middleware import setup_middlewares
 from app.db_init import init as init_database

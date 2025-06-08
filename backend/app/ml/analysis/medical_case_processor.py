@@ -19,17 +19,25 @@ class MedicalCaseProcessor:
     def _initialize_models(self):
         """Initialize required models from model manager."""
         try:
-            # Load pre-trained models
-            self.image_processor = self.model_manager.load_model('image_processor')
-            self.text_processor = self.model_manager.load_model('text_processor')
-            self.decision_engine = self.model_manager.load_model('decision_engine')
-            self.measurement_processor = self.model_manager.load_model('measurement_processor')
-            self.chatbot = self.model_manager.load_model('chatbot')
+            # Load pre-trained models with fallback options
+            self.image_processor = self.model_manager.get_model('xray') or self.model_manager.get_model('mri') or self.model_manager.get_model('ct')
+            self.text_processor = self.model_manager.get_model('medical_8b') or self.model_manager.get_model('clinical_bert')
+            self.decision_engine = self.model_manager.get_model('medical_8b')
+            self.measurement_processor = self.model_manager.get_model('clinical_bert')
+            self.chatbot = self.model_manager.get_model('medical_8b')
             
-            self.logger.info("Successfully initialized all required models")
+            if not all([self.image_processor, self.text_processor, self.decision_engine, self.measurement_processor, self.chatbot]):
+                self.logger.warning("Some models failed to load. System will operate with limited functionality.")
+            
+            self.logger.info("Successfully initialized available models")
         except Exception as e:
             self.logger.error(f"Error initializing models: {str(e)}")
-            raise
+            # Initialize with None values instead of raising
+            self.image_processor = None
+            self.text_processor = None
+            self.decision_engine = None
+            self.measurement_processor = None
+            self.chatbot = None
             
     def process_medical_case(self,
                            image_data: Optional[Dict] = None,

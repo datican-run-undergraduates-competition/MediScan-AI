@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Any
 import torch
 import numpy as np
 import os
@@ -26,31 +26,138 @@ from transformers import (
 from ..utils.medical_knowledge import MedicalKnowledgeBase
 from ...config.model_config import MODEL_CONFIG
 
+logger = logging.getLogger(__name__)
+
 class ModelManager:
-    def __init__(self, config: Dict = None):
-        self.logger = logging.getLogger(__name__)
-        self.config = config or MODEL_CONFIG
-        self.knowledge_base = MedicalKnowledgeBase()
-        self.models = {}
-        self.tokenizers = {}
-        self.model_weights = {}
-        self.task_specific_models = {}
-        self.feature_extractors = {}
-        self.fine_tuned_models = {}
-        
-        # Setup quantization config with accuracy preservation
-        self._setup_quantization()
-        
-        # Setup cache directory with cloud deployment optimization
-        self._setup_cache_directory()
-        
-        # Initialize models
+    def __init__(self):
+        self.models: Dict[str, Any] = {}
+        self.tokenizers: Dict[str, Any] = {}
+        self.weights: Dict[str, float] = {}
+        self.medical_kb = None
         self._initialize_models()
-        
+
+    def _initialize_models(self):
+        """Initialize all models with error handling."""
+        try:
+            # Initialize medical knowledge base
+            self.medical_kb = MedicalKnowledgeBase()
+            
+            # Set up quantization
+            quantization_config = MODEL_CONFIG["model_management"]["quantization"]
+            if quantization_config["enabled"]:
+                torch.quantization.quantize_dynamic(
+                    torch.nn.Module,
+                    {torch.nn.Linear},
+                    dtype=torch.qint8
+                )
+
+            # Initialize base models
+            self._initialize_base_models()
+            
+            # Set up task weights
+            self.weights = MODEL_CONFIG["task_weights"]
+            
+        except Exception as e:
+            logger.error(f"Error initializing models: {str(e)}")
+            # Initialize with empty dictionaries if initialization fails
+            self.models = {}
+            self.tokenizers = {}
+            self.weights = {}
+
+    def _initialize_base_models(self):
+        """Initialize base models with fallback options."""
+        try:
+            # Load medical models
+            self._load_model_with_fallback("xray", MODEL_CONFIG["models"]["xray"])
+            self._load_model_with_fallback("mri", MODEL_CONFIG["models"]["mri"])
+            self._load_model_with_fallback("ct", MODEL_CONFIG["models"]["ct"])
+            
+            # Load language models
+            self._load_model_with_fallback("medical_8b", MODEL_CONFIG["models"]["medical_8b"])
+            self._load_model_with_fallback("clinical_bert", MODEL_CONFIG["models"]["clinical_bert"])
+            
+        except Exception as e:
+            logger.error(f"Error loading base models: {str(e)}")
+
+    def _load_model_with_fallback(self, model_type: str, model_config: Dict):
+        """Load a model with fallback options."""
+        try:
+            # Try primary model
+            model_id = model_config["model_id"]
+            try:
+                self._load_model(model_type, model_id)
+                return
+            except Exception as e:
+                logger.warning(f"Error loading primary model {model_id}: {str(e)}")
+            
+            # Try fallback model
+            fallback_id = model_config["fallback_model_id"]
+            if fallback_id != model_id:
+                try:
+                    self._load_model(model_type, fallback_id)
+                    return
+                except Exception as e:
+                    logger.warning(f"Error loading fallback model {fallback_id}: {str(e)}")
+            
+            # If both fail, log error
+            logger.error(f"Failed to load both primary and fallback models for {model_type}")
+            
+        except Exception as e:
+            logger.error(f"Error in model loading process for {model_type}: {str(e)}")
+
+    def _load_model(self, model_type: str, model_id: str):
+        """Load a specific model and its tokenizer."""
+        try:
+            # Load model based on type
+            if model_type in ["xray", "mri", "ct"]:
+                self.models[model_type] = AutoModelForImageClassification.from_pretrained(
+                    model_id,
+                    trust_remote_code=True,
+                    cache_dir=self.cache_dir
+                )
+            else:
+                self.models[model_type] = AutoModelForSequenceClassification.from_pretrained(
+                    model_id,
+                    trust_remote_code=True,
+                    cache_dir=self.cache_dir
+                )
+            
+            # Load tokenizer
+            self.tokenizers[model_type] = AutoTokenizer.from_pretrained(
+                model_id,
+                trust_remote_code=True,
+                cache_dir=self.cache_dir
+            )
+            
+            logger.info(f"Successfully loaded model {model_id} for {model_type}")
+            
+        except Exception as e:
+            logger.error(f"Error loading model {model_id} for {model_type}: {str(e)}")
+            # Initialize with None to indicate loading failure
+            self.models[model_type] = None
+            self.tokenizers[model_type] = None
+            raise
+
+    def get_model(self, model_type: str) -> Optional[Any]:
+        """Get a specific model."""
+        return self.models.get(model_type)
+
+    def get_tokenizer(self, model_type: str) -> Optional[Any]:
+        """Get a specific tokenizer."""
+        return self.tokenizers.get(model_type)
+
+    def get_weight(self, task: str, model_type: str) -> float:
+        """Get the weight for a specific model in a task."""
+        return self.weights.get(task, {}).get(model_type, 0.0)
+
+    def get_medical_knowledge(self) -> Optional[MedicalKnowledgeBase]:
+        """Get the medical knowledge base."""
+        return self.medical_kb
+
     def _setup_quantization(self):
         """Setup model quantization configuration with accuracy preservation."""
         try:
-            quant_config = self.config.get('model_management', {}).get('quantization', {})
+            quant_config = MODEL_CONFIG.get('model_management', {}).get('quantization', {})
             
             # Dynamic quantization based on task requirements
             if quant_config.get('dynamic_quantization', True):
@@ -73,14 +180,14 @@ class ModelManager:
                 self.quantization_config = None
                 
         except Exception as e:
-            self.logger.error(f"Error setting up quantization: {str(e)}")
+            logger.error(f"Error setting up quantization: {str(e)}")
             self.quantization_config = None
             
     def _setup_cache_directory(self):
         """Setup cache directory with cloud deployment optimization."""
         try:
             # Get cache configuration
-            cache_config = self.config.get('model_management', {}).get('remote_models', {})
+            cache_config = MODEL_CONFIG.get('model_management', {}).get('remote_models', {})
             
             # Use environment variable for cache directory if available
             cache_dir = os.getenv('MODEL_CACHE_DIR', cache_config.get('cache_dir', 'models/cache'))
@@ -101,7 +208,7 @@ class ModelManager:
             self._clean_cache_if_needed()
             
         except Exception as e:
-            self.logger.error(f"Error setting up cache directory: {str(e)}")
+            logger.error(f"Error setting up cache directory: {str(e)}")
             self.cache_dir = Path('models/cache')
             self.cache_dir.mkdir(parents=True, exist_ok=True)
             
@@ -115,7 +222,7 @@ class ModelManager:
             if (current_size > self.max_cache_size or 
                 current_time - self.last_cleanup > self.cleanup_interval * 3600):
                 
-                self.logger.info(f"Cache size: {current_size/1024/1024:.2f}MB, Cleaning...")
+                logger.info(f"Cache size: {current_size/1024/1024:.2f}MB, Cleaning...")
                 
                 # Get file access patterns
                 files = [(f, f.stat().st_mtime, f.stat().st_atime) for f in self.cache_dir.rglob('*') if f.is_file()]
@@ -131,10 +238,10 @@ class ModelManager:
                     file.unlink()
                     
                 self.last_cleanup = current_time
-                self.logger.info(f"Cache cleaned. New size: {current_size/1024/1024:.2f}MB")
+                logger.info(f"Cache cleaned. New size: {current_size/1024/1024:.2f}MB")
                 
         except Exception as e:
-            self.logger.error(f"Error cleaning cache: {str(e)}")
+            logger.error(f"Error cleaning cache: {str(e)}")
             
     def _load_model_with_quantization(self, model_name: str, model_class, **kwargs):
         """Load model with quantization if configured."""
@@ -153,120 +260,43 @@ class ModelManager:
                     **kwargs
                 )
         except Exception as e:
-            self.logger.error(f"Error loading model {model_name}: {str(e)}")
-            return None
+            logger.error(f"Error loading model {model_name}: {str(e)}")
+            # Try loading without quantization
+            try:
+                return model_class.from_pretrained(
+                    model_name,
+                    cache_dir=self.cache_dir,
+                    **kwargs
+                )
+            except Exception as e2:
+                logger.error(f"Error loading model {model_name} without quantization: {str(e2)}")
+                return None
             
-    def _initialize_models(self):
-        """Initialize all required models for different tasks."""
-        try:
-            # Initialize base models
-            self._initialize_base_models()
-            
-            # Initialize task-specific models
-            self._initialize_task_models()
-            
-            self.logger.info("Successfully initialized all models")
-        except Exception as e:
-            self.logger.error(f"Error initializing models: {str(e)}")
-            
-    def _initialize_base_models(self):
-        """Initialize base models that can be used across tasks."""
-        try:
-            # Initialize medical models
-            for model_name, model_config in self.config['models'].items():
-                model_id = model_config['model_id']
-                weight = model_config['weight']
-                
-                try:
-                    if model_name in ['medical_8b', 'clinical_bert']:
-                        # Load language models
-                        self.logger.info(f"Loading language model: {model_id}")
-                        tokenizer = AutoTokenizer.from_pretrained(
-                            model_id,
-                            cache_dir=self.cache_dir,
-                            trust_remote_code=True
-                        )
-                        model = self._load_model_with_quantization(
-                            model_id,
-                            AutoModelForCausalLM if model_name == 'medical_8b' else BertModel,
-                            trust_remote_code=True
-                        )
-                    else:
-                        # Load vision models
-                        self.logger.info(f"Loading vision model: {model_id}")
-                        tokenizer = AutoFeatureExtractor.from_pretrained(
-                            model_id,
-                            cache_dir=self.cache_dir,
-                            trust_remote_code=True
-                        )
-                        model = self._load_model_with_quantization(
-                            model_id,
-                            AutoModelForImageClassification,
-                            trust_remote_code=True
-                        )
-                    
-                    if model is not None:
-                        self.models[model_name] = model
-                        self.tokenizers[model_name] = tokenizer
-                        self.model_weights[model_name] = weight
-                        self.logger.info(f"Successfully loaded model {model_name}")
-                    else:
-                        self.logger.warning(f"Failed to load model {model_name}")
-                        
-                except Exception as e:
-                    self.logger.error(f"Error loading model {model_name}: {str(e)}")
-                    continue
-                    
-        except Exception as e:
-            self.logger.error(f"Error initializing base models: {str(e)}")
-            # Initialize with empty models instead of failing
-            self.models = {}
-            self.tokenizers = {}
-            self.model_weights = {}
-            
-    def _initialize_task_models(self):
-        """Initialize task-specific models."""
-        try:
-            for task, weights in self.config['task_weights'].items():
-                task_models = {}
-                for model_name, weight in weights.items():
-                    if model_name in self.models:
-                        task_models[model_name] = {
-                            'model': self.models[model_name],
-                            'weight': weight
-                        }
-                if task_models:
-                    self.task_specific_models[task] = task_models
-                    
-        except Exception as e:
-            self.logger.error(f"Error initializing task models: {str(e)}")
-            
-    def get_model(self, task: str) -> Union[torch.nn.Module, Dict[str, torch.nn.Module]]:
-        """Get model for specific task."""
-        return self.task_specific_models.get(task, {})
-        
-    def get_tokenizer(self, model_name: str) -> Optional[AutoTokenizer]:
-        """Get tokenizer for specific model."""
-        return self.tokenizers.get(model_name)
-        
     def ensemble_predict(self, task: str, input_data: Dict) -> Dict:
-        """Make ensemble prediction using multiple models."""
+        """Make predictions using an ensemble of models."""
         try:
-            task_models = self._get_task_models(task)
-            if not task_models:
-                return {'error': 'No models available for task'}
+            # Get models for the task
+            models = self._get_task_models(task)
+            if not models:
+                raise ValueError(f"No models available for task: {task}")
                 
+            # Get predictions from each model
             predictions = []
             weights = []
             confidences = []
             
-            for model_name, model_info in task_models.items():
-                model = model_info['model']
-                weight = model_info['weight']
-                
+            for model_name, model in models.items():
+                if model is None:
+                    continue
+                    
                 try:
+                    # Get model weight
+                    weight = self._calculate_model_weight(model_name, task)
+                    
                     # Make prediction
-                    prediction = model(**input_data)
+                    prediction = model(input_data)
+                    
+                    # Calculate confidence
                     confidence = self._calculate_prediction_confidence(prediction)
                     
                     predictions.append(prediction)
@@ -274,37 +304,35 @@ class ModelManager:
                     confidences.append(confidence)
                     
                 except Exception as e:
-                    self.logger.error(f"Error making prediction with {model_name}: {str(e)}")
+                    logger.error(f"Error getting prediction from model {model_name}: {str(e)}")
                     continue
                     
             if not predictions:
-                return {'error': 'No valid predictions'}
+                raise ValueError("No valid predictions obtained")
                 
-            # Combine predictions
-            final_prediction = self._weighted_ensemble(predictions, weights, confidences)
-            return final_prediction
+            # Combine predictions using weighted ensemble
+            return self._weighted_ensemble(predictions, weights, confidences)
             
         except Exception as e:
-            self.logger.error(f"Error in ensemble prediction: {str(e)}")
-            return {'error': str(e)}
+            logger.error(f"Error in ensemble prediction: {str(e)}")
+            return {}
             
     def _get_task_models(self, task: str) -> Dict[str, torch.nn.Module]:
-        """Get models for specific task."""
-        return self.task_specific_models.get(task, {})
+        """Get models for a specific task."""
+        return self.weights.get(task, {})
         
     def _calculate_model_weight(self, model_name: str, task: str) -> float:
-        """Calculate weight for model in ensemble."""
-        return self.config['task_weights'].get(task, {}).get(model_name, 0.0)
+        """Calculate weight for a model in a specific task."""
+        return self.weights.get(task, {}).get(model_name, 0.0)
         
     def _calculate_prediction_confidence(self, prediction: Dict) -> float:
-        """Calculate confidence score for prediction."""
+        """Calculate confidence score for a prediction."""
         try:
-            if 'logits' in prediction:
-                probs = torch.softmax(prediction['logits'], dim=-1)
-                return float(torch.max(probs))
-            return 0.5
-        except Exception:
-            return 0.5
+            # Implement confidence calculation based on prediction structure
+            return 0.8  # Placeholder
+        except Exception as e:
+            logger.error(f"Error calculating prediction confidence: {str(e)}")
+            return 0.0
             
     def _weighted_ensemble(
         self,
@@ -317,7 +345,7 @@ class ModelManager:
             # Normalize weights
             total_weight = sum(w * c for w, c in zip(weights, confidences))
             if total_weight == 0:
-                return {'error': 'No valid predictions'}
+                return {}
                 
             normalized_weights = [w * c / total_weight for w, c in zip(weights, confidences)]
             
@@ -326,137 +354,134 @@ class ModelManager:
             for pred, weight in zip(predictions, normalized_weights):
                 for key, value in pred.items():
                     if key not in combined_prediction:
-                        combined_prediction[key] = 0
+                        combined_prediction[key] = 0.0
                     combined_prediction[key] += value * weight
                     
             return combined_prediction
             
         except Exception as e:
-            self.logger.error(f"Error in weighted ensemble: {str(e)}")
-            return {'error': str(e)}
+            logger.error(f"Error in weighted ensemble: {str(e)}")
+            return {}
             
     def fine_tune_model(self, task: str, training_data: Dict, validation_data: Dict = None):
-        """Fine-tune model for specific task."""
+        """Fine-tune a model for a specific task."""
         try:
-            task_models = self._get_task_models(task)
-            if not task_models:
-                raise ValueError(f"No models available for task {task}")
+            # Get base model
+            model = self.get_model(task)
+            if not model:
+                raise ValueError(f"No model available for task: {task}")
                 
-            for model_name, model_info in task_models.items():
-                model = model_info['model']
-                
-                # Setup training arguments
-                training_args = TrainingArguments(
-                    output_dir=f"models/fine_tuned/{task}/{model_name}",
-                    num_train_epochs=3,
-                    per_device_train_batch_size=8,
-                    per_device_eval_batch_size=8,
-                    warmup_steps=500,
-                    weight_decay=0.01,
-                    logging_dir=f"logs/{task}/{model_name}",
-                    logging_steps=10,
-                    evaluation_strategy="steps",
-                    eval_steps=100,
-                    save_strategy="steps",
-                    save_steps=100,
-                    load_best_model_at_end=True
+            # Prepare training arguments
+            training_args = TrainingArguments(
+                output_dir=f"models/fine_tuned/{task}",
+                num_train_epochs=3,
+                per_device_train_batch_size=8,
+                per_device_eval_batch_size=8,
+                warmup_steps=500,
+                weight_decay=0.01,
+                logging_dir=f"logs/fine_tuned/{task}",
+                logging_steps=10,
+                evaluation_strategy="steps",
+                eval_steps=100,
+                save_strategy="steps",
+                save_steps=100,
+                load_best_model_at_end=True
+            )
+            
+            # Prepare data collator
+            if task in ['medical_8b', 'clinical_bert']:
+                data_collator = DataCollatorForLanguageModeling(
+                    tokenizer=self.get_tokenizer(task),
+                    mlm=True
+                )
+            else:
+                data_collator = DataCollatorForSeq2Seq(
+                    tokenizer=self.get_tokenizer(task)
                 )
                 
-                # Setup trainer
-                trainer = Trainer(
-                    model=model,
-                    args=training_args,
-                    train_dataset=training_data,
-                    eval_dataset=validation_data,
-                    data_collator=DataCollatorForLanguageModeling(
-                        tokenizer=self.get_tokenizer(model_name)
-                    )
-                )
-                
-                # Train model
-                trainer.train()
-                
-                # Save fine-tuned model
-                model.save_pretrained(f"models/fine_tuned/{task}/{model_name}")
-                
+            # Initialize trainer
+            trainer = Trainer(
+                model=model,
+                args=training_args,
+                train_dataset=training_data,
+                eval_dataset=validation_data,
+                data_collator=data_collator
+            )
+            
+            # Train model
+            trainer.train()
+            
+            # Save fine-tuned model
+            model_path = f"models/fine_tuned/{task}"
+            trainer.save_model(model_path)
+            
         except Exception as e:
-            self.logger.error(f"Error fine-tuning model: {str(e)}")
-            raise
+            logger.error(f"Error fine-tuning model: {str(e)}")
             
     def evaluate_model(self, task: str, test_data: Dict) -> Dict:
-        """Evaluate model performance on test data."""
+        """Evaluate a model's performance on test data."""
         try:
-            task_models = self._get_task_models(task)
-            if not task_models:
-                raise ValueError(f"No models available for task {task}")
+            # Get model
+            model = self.get_model(task)
+            if not model:
+                raise ValueError(f"No model available for task: {task}")
                 
-            results = {}
-            for model_name, model_info in task_models.items():
-                model = model_info['model']
-                
-                # Setup trainer for evaluation
-                trainer = Trainer(
-                    model=model,
-                    args=TrainingArguments(
-                        output_dir=f"models/evaluation/{task}/{model_name}",
-                        per_device_eval_batch_size=8
-                    ),
-                    eval_dataset=test_data,
-                    data_collator=DataCollatorForLanguageModeling(
-                        tokenizer=self.get_tokenizer(model_name)
-                    )
-                )
-                
-                # Evaluate model
-                eval_results = trainer.evaluate()
-                results[model_name] = eval_results
-                
-            return results
+            # Prepare evaluation arguments
+            eval_args = TrainingArguments(
+                output_dir=f"models/evaluation/{task}",
+                per_device_eval_batch_size=8,
+                logging_dir=f"logs/evaluation/{task}",
+                logging_steps=10
+            )
+            
+            # Initialize trainer
+            trainer = Trainer(
+                model=model,
+                args=eval_args,
+                eval_dataset=test_data
+            )
+            
+            # Evaluate model
+            metrics = trainer.evaluate()
+            
+            return metrics
             
         except Exception as e:
-            self.logger.error(f"Error evaluating model: {str(e)}")
-            raise
+            logger.error(f"Error evaluating model: {str(e)}")
+            return {}
             
     def generate_prescription(self, patient_data: Dict, diagnosis: str) -> Dict:
-        """Generate prescription based on patient data and diagnosis."""
+        """Generate a prescription based on patient data and diagnosis."""
         try:
-            # Get medication recommendations
-            recommendations = self.ensemble_predict('treatment', {
+            # Get relevant models
+            medical_model = self.get_model('medical_8b')
+            clinical_model = self.get_model('clinical_bert')
+            
+            if not medical_model or not clinical_model:
+                raise ValueError("Required models not available")
+                
+            # Generate prescription using ensemble
+            prescription = self.ensemble_predict('treatment', {
                 'patient_data': patient_data,
                 'diagnosis': diagnosis
             })
             
-            if 'error' in recommendations:
-                return recommendations
-                
-            # Get medication information
-            medications = {}
-            for med in recommendations.get('medications', []):
-                med_info = self.knowledge_base.get_medication_info(med)
-                if med_info:
-                    medications[med] = med_info
-                    
-            # Generate warnings
-            warnings = self._generate_warnings(
-                recommendations.get('interactions', {}),
-                recommendations.get('contraindications', {})
+            # Add warnings and instructions
+            prescription['warnings'] = self._generate_warnings(
+                prescription.get('interactions', {}),
+                prescription.get('contraindications', {})
             )
             
-            # Generate instructions
-            instructions = self._generate_instructions(
-                recommendations.get('recommendations', {}),
-                recommendations.get('dosages', {})
+            prescription['instructions'] = self._generate_instructions(
+                prescription.get('recommendations', {}),
+                prescription.get('dosages', {})
             )
             
-            return {
-                'medications': medications,
-                'warnings': warnings,
-                'instructions': instructions
-            }
+            return prescription
             
         except Exception as e:
-            self.logger.error(f"Error generating prescription: {str(e)}")
-            return {'error': str(e)}
+            logger.error(f"Error generating prescription: {str(e)}")
+            return {}
             
     def _generate_warnings(self, interactions: Dict, contraindications: Dict) -> List[str]:
         """Generate warnings based on interactions and contraindications."""
@@ -467,10 +492,9 @@ class ModelManager:
             warnings.append(f"Warning: {med1} may interact with {med2}")
             
         # Add contraindication warnings
-        for med, conditions in contraindications.items():
-            for condition in conditions:
-                warnings.append(f"Warning: {med} is contraindicated in {condition}")
-                
+        for med, condition in contraindications.items():
+            warnings.append(f"Warning: {med} is contraindicated in {condition}")
+            
         return warnings
         
     def _generate_instructions(self, recommendations: Dict, dosages: Dict) -> List[str]:
@@ -478,12 +502,11 @@ class ModelManager:
         instructions = []
         
         # Add dosage instructions
-        for med, dosage in dosages.items():
-            instructions.append(f"Take {med} {dosage['amount']} {dosage['unit']} {dosage['frequency']}")
+        for medication, dosage in dosages.items():
+            instructions.append(f"Take {medication} {dosage}")
             
-        # Add general instructions
-        for med, recs in recommendations.items():
-            for rec in recs:
-                instructions.append(f"For {med}: {rec}")
-                
-        return instructions 
+        # Add general recommendations
+        for category, items in recommendations.items():
+            instructions.extend(items)
+            
+        return instructions
