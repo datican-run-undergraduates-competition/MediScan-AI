@@ -44,6 +44,8 @@ class User(Base):
     images = relationship("MedicalImage", back_populates="user")
     reports = relationship("MedicalReport", back_populates="user")
     security_logs = relationship("SecurityLog", back_populates="user")
+    chat_messages = relationship("ChatMessage", back_populates="user", cascade="all, delete-orphan")
+    analyses = relationship("Analysis", back_populates="user", cascade="all, delete-orphan")
 
 class SecurityLog(Base):
     __tablename__ = "security_logs"

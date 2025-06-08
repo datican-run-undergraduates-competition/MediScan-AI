@@ -35,6 +35,7 @@ import {
   ArrowDropDown as ArrowDropDownIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useDarkMode } from '../../../contexts/DarkModeContext';
 import Link from 'next/link';
 
 interface HeaderProps {
@@ -46,6 +47,7 @@ interface HeaderProps {
 export default function Header({ sidebarOpen, toggleSidebar, sidebarCollapsed = false }: HeaderProps) {
   const theme = useTheme();
   const { user, logout } = useAuth();
+  const { darkMode, toggleDarkMode } = useDarkMode();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [notificationAnchorEl, setNotificationAnchorEl] = useState<null | HTMLElement>(null);
   
@@ -217,10 +219,11 @@ export default function Header({ sidebarOpen, toggleSidebar, sidebarCollapsed = 
           </Tooltip>
           
           {/* Theme Toggle - visible on larger screens */}
-          <Tooltip title="Toggle Theme">
+          <Tooltip title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}>
             <IconButton
               size="large"
               color="inherit"
+              onClick={toggleDarkMode}
               sx={{
                 display: { xs: 'none', sm: 'flex' },
                 bgcolor: alpha(theme.palette.primary.main, 0.1),
@@ -230,7 +233,7 @@ export default function Header({ sidebarOpen, toggleSidebar, sidebarCollapsed = 
                 },
               }}
             >
-              {theme.palette.mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
+              {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
             </IconButton>
           </Tooltip>
           
@@ -252,15 +255,16 @@ export default function Header({ sidebarOpen, toggleSidebar, sidebarCollapsed = 
             onClick={handleProfileMenuOpen}
           >
             <Avatar
-              src="/assets/avatar.png"
-              alt={user?.name || 'User'}
               sx={{
                 width: 40,
                 height: 40,
-                border: `2px solid ${theme.palette.primary.main}`,
-                boxShadow: `0 0 8px ${alpha(theme.palette.primary.main, 0.4)}`,
+                bgcolor: theme.palette.primary.main,
+                cursor: 'pointer'
               }}
-            />
+              onClick={handleProfileMenuOpen}
+            >
+              {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+            </Avatar>
             <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
               <Typography variant="subtitle2" component="div" sx={{ fontWeight: 600 }}>
                 {user?.name || 'Guest User'}

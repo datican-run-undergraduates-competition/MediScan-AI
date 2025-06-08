@@ -1,0 +1,230 @@
+import os
+import time
+from typing import Dict, List, Optional
+import torch
+from PIL import Image
+import numpy as np
+import logging
+import random
+
+logger = logging.getLogger(__name__)
+
+class AnalysisService:
+    def __init__(self):
+        self.models = {}
+        self.online_mode = False  # Set to False to use mock responses
+        self.load_models()
+
+    def load_models(self):
+        """Load AI models for different types of analysis or set up mock mode"""
+        try:
+            if self.online_mode:
+                # Only try to load models if online mode is enabled
+                try:
+                    from transformers import pipeline
+                    # Load image classification model
+                    self.models["xray"] = pipeline(
+                        "image-classification",
+                        model="microsoft/resnet-50",
+                        device=0 if torch.cuda.is_available() else -1
+                    )
+                    
+                    # Load text analysis model
+                    self.models["report"] = pipeline(
+                        "text-classification",
+                        model="distilbert-base-uncased",
+                        device=0 if torch.cuda.is_available() else -1
+                    )
+                    
+                    logger.info("Models loaded successfully")
+                except Exception as e:
+                    logger.warning(f"Error loading models, falling back to mock mode: {str(e)}")
+                    self.online_mode = False
+            
+            if not self.online_mode:
+                logger.info("Using mock mode for model predictions")
+                
+        except Exception as e:
+            logger.error(f"Error in model initialization: {str(e)}")
+            self.online_mode = False
+
+    async def analyze_image(self, file_path: str, model_id: Optional[str] = None) -> Dict:
+        """Analyze a medical image"""
+        try:
+            start_time = time.time()
+            
+            # Check if we're using real models or mock responses
+            if self.online_mode and "xray" in self.models:
+                # Load and preprocess image
+                image = Image.open(file_path)
+                if image.mode != "RGB":
+                    image = image.convert("RGB")
+                
+                # Get predictions
+                predictions = self.models["xray"](image)
+                
+                # Process results
+                findings = []
+                for pred in predictions:
+                    findings.append({
+                        "type": "abnormality" if pred["label"] != "normal" else "normal",
+                        "description": f"Detected {pred['label']} with confidence {pred['score']:.2f}",
+                        "confidence": float(pred["score"]),
+                        "location": None  # Add location if available
+                    })
+            else:
+                # Generate mock predictions
+                findings = self._generate_mock_image_findings()
+            
+            # Generate recommendations
+            recommendations = self._generate_recommendations(findings)
+            
+            processing_time = time.time() - start_time
+            
+            return {
+                "findings": findings,
+                "recommendations": recommendations,
+                "confidence_scores": {f["description"]: f["confidence"] for f in findings},
+                "processing_time": processing_time
+            }
+            
+        except Exception as e:
+            logger.error(f"Error analyzing image: {str(e)}")
+            raise
+
+    async def analyze_report(self, file_path: str) -> Dict:
+        """Analyze a medical report"""
+        try:
+            start_time = time.time()
+            
+            # Check if we're using real models or mock responses
+            if self.online_mode and "report" in self.models:
+                # Read report text
+                with open(file_path, "r", encoding="utf-8") as f:
+                    text = f.read()
+                
+                # Get predictions
+                predictions = self.models["report"](text)
+                
+                # Process results
+                findings = []
+                for pred in predictions:
+                    findings.append({
+                        "type": "abnormality" if pred["label"] != "normal" else "normal",
+                        "description": f"Detected {pred['label']} with confidence {pred['score']:.2f}",
+                        "confidence": float(pred["score"]),
+                        "location": None
+                    })
+            else:
+                # Generate mock predictions
+                findings = self._generate_mock_report_findings()
+            
+            # Generate recommendations
+            recommendations = self._generate_recommendations(findings)
+            
+            processing_time = time.time() - start_time
+            
+            return {
+                "findings": findings,
+                "recommendations": recommendations,
+                "confidence_scores": {f["description"]: f["confidence"] for f in findings},
+                "processing_time": processing_time
+            }
+            
+        except Exception as e:
+            logger.error(f"Error analyzing report: {str(e)}")
+            raise
+
+    def _generate_mock_image_findings(self) -> List[Dict]:
+        """Generate mock findings for image analysis"""
+        findings = []
+        possible_findings = [
+            {
+                "type": "normal",
+                "description": "No abnormalities detected",
+                "confidence": round(random.uniform(0.7, 0.98), 2),
+                "location": None
+            },
+            {
+                "type": "abnormality",
+                "description": "Detected possible pulmonary infiltrate",
+                "confidence": round(random.uniform(0.6, 0.85), 2),
+                "location": "Right lower lobe"
+            },
+            {
+                "type": "abnormality",
+                "description": "Detected cardiomegaly",
+                "confidence": round(random.uniform(0.5, 0.75), 2),
+                "location": "Cardiac silhouette"
+            },
+            {
+                "type": "abnormality",
+                "description": "Detected possible nodule",
+                "confidence": round(random.uniform(0.4, 0.7), 2),
+                "location": "Left upper lobe"
+            }
+        ]
+        
+        # Randomly select 1-3 findings
+        num_findings = random.randint(1, 3)
+        selected_findings = random.sample(possible_findings, num_findings)
+        
+        return selected_findings
+    
+    def _generate_mock_report_findings(self) -> List[Dict]:
+        """Generate mock findings for report analysis"""
+        findings = []
+        possible_findings = [
+            {
+                "type": "normal",
+                "description": "Report indicates normal findings",
+                "confidence": round(random.uniform(0.7, 0.95), 2),
+                "location": None
+            },
+            {
+                "type": "abnormality",
+                "description": "Detected mention of abnormal white blood cell count",
+                "confidence": round(random.uniform(0.6, 0.9), 2),
+                "location": "Blood work"
+            },
+            {
+                "type": "abnormality",
+                "description": "Detected mention of elevated blood pressure",
+                "confidence": round(random.uniform(0.7, 0.85), 2),
+                "location": "Vital signs"
+            },
+            {
+                "type": "abnormality",
+                "description": "Detected mention of irregular heartbeat",
+                "confidence": round(random.uniform(0.5, 0.8), 2),
+                "location": "Cardiac assessment"
+            }
+        ]
+        
+        # Randomly select 1-2 findings
+        num_findings = random.randint(1, 2)
+        selected_findings = random.sample(possible_findings, num_findings)
+        
+        return selected_findings
+
+    def _generate_recommendations(self, findings: List[Dict]) -> List[str]:
+        """Generate recommendations based on findings"""
+        recommendations = []
+        
+        # Add general recommendations
+        recommendations.append("Consult with a medical professional for detailed interpretation")
+        
+        # Add specific recommendations based on findings
+        for finding in findings:
+            if finding["type"] == "abnormality":
+                if finding["confidence"] > 0.8:
+                    recommendations.append("Consider immediate follow-up with specialist")
+                elif finding["confidence"] > 0.5:
+                    recommendations.append("Schedule follow-up appointment")
+                if finding["location"]:
+                    recommendations.append(f"Monitor {finding['location']} for changes")
+        
+        return recommendations
+
+# Create singleton instance
+analysis_service = AnalysisService()

@@ -11,6 +11,10 @@ from .models.models import UserSettings
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def get_db_session():
+    """Get a database session."""
+    return SessionLocal()
+
 def create_default_admin():
     """Create a default superuser if none exists"""
     db = SessionLocal()

@@ -259,16 +259,16 @@ const Sidebar = ({ open, onClose, collapsed, toggleCollapsed }: SidebarProps) =>
                 />
               }
             >
-              <Avatar 
-                src="/assets/avatar.png" 
-                alt={user?.name || 'User'} 
-                sx={{ 
-                  width: collapsed ? 40 : 56, 
-                  height: collapsed ? 40 : 56,
-                  boxShadow: '0 0 15px rgba(0, 0, 0, 0.2)',
-                  border: '2px solid white',
-                }} 
-              />
+              <Avatar
+                sx={{
+                  width: 40,
+                  height: 40,
+                  bgcolor: theme.palette.primary.main,
+                  marginRight: 2
+                }}
+              >
+                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+              </Avatar>
             </Badge>
           </Box>
           

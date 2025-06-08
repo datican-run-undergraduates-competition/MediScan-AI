@@ -6,11 +6,16 @@ import json
 from ...core.security import get_current_user
 from ...models.user import User
 from ...utils.audit_logger import log_event, LOG_CATEGORY, LOG_ACTION
-from ...db_init import get_db_session
+from ...core.database import SessionLocal
 from ...models.preferences import UserPreferences
 
 # Set up logging
 logger = logging.getLogger(__name__)
+
+# Helper function to get db session
+def get_db_session():
+    """Get a database session"""
+    return SessionLocal()
 
 # Create router
 router = APIRouter(

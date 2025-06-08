@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form, Request
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 import logging
 import asyncio
@@ -9,8 +10,11 @@ from typing import List, Optional
 import os
 from datetime import datetime, timedelta
 import shutil
-from . import models, schemas, auth
-from .database import engine, get_db
+from .models.user import User
+from .schemas.user import User as UserSchema, UserCreate
+from .schemas.token import Token
+import auth
+from .core.database import engine, get_db
 import json
 import time
 
@@ -113,6 +117,8 @@ from .api.routes import (
 from .api.routes.dicom import router as dicom_router
 from .api.routes.audit import router as audit_router
 from .api.routes.preferences import router as preferences_router
+from .api.routes.voice import router as voice_router
+from .api.routes.chatbot import router as chat_router
 
 app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(xray_router, prefix="/api/xray", tags=["X-Ray Analysis"])
@@ -122,6 +128,8 @@ app.include_router(report_router, prefix="/api/report", tags=["Report Analysis"]
 app.include_router(dicom_router, prefix="/api/dicom", tags=["DICOM Processing"])
 app.include_router(audit_router, prefix="/api/audit", tags=["Audit Logging"])
 app.include_router(preferences_router, prefix="/api/preferences", tags=["User Preferences"])
+app.include_router(voice_router, prefix="/api/voice", tags=["Voice Processing"])
+app.include_router(chat_router, prefix="/api/chat", tags=["Chat Bot"])
 
 app.include_router(
     analysis.router,
@@ -130,12 +138,12 @@ app.include_router(
 )
 
 # Authentication routes
-@app.post("/token", response_model=schemas.Token)
+@app.post("/token", response_model=Token)
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
-    user = db.query(models.User).filter(models.User.email == form_data.username).first()
+    user = db.query(User).filter(User.email == form_data.username).first()
     if not user or not auth.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -149,14 +157,14 @@ async def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 # User routes
-@app.post("/users/", response_model=schemas.User)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(models.User).filter(models.User.email == user.email).first()
+@app.post("/users/", response_model=UserSchema)
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
     hashed_password = auth.get_password_hash(user.password)
-    db_user = models.User(
+    db_user = User(
         email=user.email,
         hashed_password=hashed_password,
         full_name=user.full_name,
@@ -168,43 +176,43 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.refresh(db_user)
     return db_user
 
-@app.get("/users/me/", response_model=schemas.UserWithSettings)
-def read_users_me(current_user: models.User = Depends(auth.get_current_active_user)):
+@app.get("/users/me/", response_model=UserSchema)
+def read_users_me(current_user: User = Depends(auth.get_current_active_user)):
     return current_user
 
 # Settings routes
-@app.get("/settings/", response_model=schemas.UserSettings)
+@app.get("/settings/", response_model=UserSchema)
 def get_user_settings(
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: User = Depends(auth.get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    settings = db.query(models.UserSettings).filter(
-        models.UserSettings.user_id == current_user.id
+    settings = db.query(UserSchema).filter(
+        UserSchema.user_id == current_user.id
     ).first()
     if not settings:
         # Create default settings
-        settings = models.UserSettings(
+        settings = UserSchema(
             user_id=current_user.id,
-            notifications=schemas.NotificationSettings().dict(),
-            appearance=schemas.AppearanceSettings().dict(),
-            privacy=schemas.PrivacySettings().dict()
+            notifications=UserSchema().dict(),
+            appearance=UserSchema().dict(),
+            privacy=UserSchema().dict()
         )
         db.add(settings)
         db.commit()
         db.refresh(settings)
     return settings
 
-@app.put("/settings/", response_model=schemas.UserSettings)
+@app.put("/settings/", response_model=UserSchema)
 def update_user_settings(
-    settings: schemas.UserSettingsBase,
-    current_user: models.User = Depends(auth.get_current_active_user),
+    settings: UserSchema,
+    current_user: User = Depends(auth.get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    db_settings = db.query(models.UserSettings).filter(
-        models.UserSettings.user_id == current_user.id
+    db_settings = db.query(UserSchema).filter(
+        UserSchema.user_id == current_user.id
     ).first()
     if not db_settings:
-        db_settings = models.UserSettings(user_id=current_user.id)
+        db_settings = UserSchema(user_id=current_user.id)
     
     db_settings.notifications = settings.notifications.dict()
     db_settings.appearance = settings.appearance.dict()
@@ -216,12 +224,12 @@ def update_user_settings(
     return db_settings
 
 # Upload routes
-@app.post("/uploads/", response_model=schemas.Upload)
+@app.post("/uploads/", response_model=UserSchema)
 async def create_upload(
     file: UploadFile = File(...),
     file_type: str = Form(...),
     model_id: Optional[str] = Form(None),
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: User = Depends(auth.get_current_active_user),
     db: Session = Depends(get_db)
 ):
     # Save file
@@ -230,7 +238,7 @@ async def create_upload(
         shutil.copyfileobj(file.file, buffer)
     
     # Create upload record
-    db_upload = models.Upload(
+    db_upload = UserSchema(
         user_id=current_user.id,
         file_name=file.filename,
         file_type=file_type,
@@ -250,28 +258,28 @@ async def create_upload(
     
     return db_upload
 
-@app.get("/uploads/", response_model=List[schemas.Upload])
+@app.get("/uploads/", response_model=List[UserSchema])
 def get_user_uploads(
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: User = Depends(auth.get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    return db.query(models.Upload).filter(models.Upload.user_id == current_user.id).all()
+    return db.query(UserSchema).filter(UserSchema.user_id == current_user.id).all()
 
-@app.get("/uploads/{upload_id}", response_model=schemas.AnalysisResponse)
+@app.get("/uploads/{upload_id}", response_model=UserSchema)
 def get_upload_analysis(
     upload_id: int,
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: User = Depends(auth.get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    upload = db.query(models.Upload).filter(
-        models.Upload.id == upload_id,
-        models.Upload.user_id == current_user.id
+    upload = db.query(UserSchema).filter(
+        UserSchema.id == upload_id,
+        UserSchema.user_id == current_user.id
     ).first()
     if not upload:
         raise HTTPException(status_code=404, detail="Upload not found")
     
-    analysis = db.query(models.Analysis).filter(
-        models.Analysis.upload_id == upload_id
+    analysis = db.query(UserSchema).filter(
+        UserSchema.upload_id == upload_id
     ).first()
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
@@ -279,14 +287,14 @@ def get_upload_analysis(
     return {"upload": upload, "analysis": analysis}
 
 # Dashboard routes
-@app.get("/dashboard/stats", response_model=schemas.DashboardStats)
+@app.get("/dashboard/stats", response_model=UserSchema)
 def get_dashboard_stats(
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: User = Depends(auth.get_current_active_user),
     db: Session = Depends(get_db)
 ):
     # Get upload stats
-    uploads = db.query(models.Upload).filter(
-        models.Upload.user_id == current_user.id
+    uploads = db.query(UserSchema).filter(
+        UserSchema.user_id == current_user.id
     ).all()
     
     upload_stats = {
@@ -303,19 +311,19 @@ def get_dashboard_stats(
     }
     
     # Get recent uploads
-    recent_uploads = db.query(models.Upload).filter(
-        models.Upload.user_id == current_user.id
-    ).order_by(models.Upload.created_at.desc()).limit(5).all()
+    recent_uploads = db.query(UserSchema).filter(
+        UserSchema.user_id == current_user.id
+    ).order_by(UserSchema.created_at.desc()).limit(5).all()
     
     # Get upload trends (last 7 days)
     today = datetime.now().date()
     trends = []
     for i in range(7):
         date = today - timedelta(days=i)
-        count = db.query(models.Upload).filter(
-            models.Upload.user_id == current_user.id,
-            models.Upload.created_at >= date,
-            models.Upload.created_at < date + timedelta(days=1)
+        count = db.query(UserSchema).filter(
+            UserSchema.user_id == current_user.id,
+            UserSchema.created_at >= date,
+            UserSchema.created_at < date + timedelta(days=1)
         ).count()
         trends.append({"date": date.strftime("%Y-%m-%d"), "count": count})
     

@@ -5,6 +5,7 @@ import { Box, useMediaQuery, useTheme } from '@mui/material';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useDarkMode } from '../../../contexts/DarkModeContext';
 import { useRouter, usePathname } from 'next/navigation';
 
 interface AppLayoutProps {
@@ -17,6 +18,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { user, loading } = useAuth();
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -64,7 +66,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }
   
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box 
+      sx={{ 
+        display: 'flex', 
+        minHeight: '100vh', 
+        bgcolor: 'background.default',
+        color: theme.palette.text.primary
+      }}
+    >
       <Sidebar 
         open={sidebarOpen} 
         onClose={() => setSidebarOpen(false)} 

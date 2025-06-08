@@ -1,6 +1,7 @@
+// @ts-ignore
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Grid, 
   Box, 
@@ -47,6 +48,8 @@ import {
 } from '@mui/icons-material';
 import StatCard from '../components/dashboard/StatCard';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import { useDarkMode } from '../../contexts/DarkModeContext';
+import DarkModeToggle from '../../components/DarkModeToggle';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -184,7 +187,7 @@ const lineChartOptions = {
   },
   elements: {
     line: {
-      borderJoinStyle: 'round',
+      borderJoinStyle: 'round' as const,
     },
   },
 };

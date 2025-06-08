@@ -1,5 +1,13 @@
 'use client';
 
+// Add type declarations for SpeechRecognition
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
+
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Container, 
@@ -13,83 +21,176 @@ import {
   IconButton,
   CircularProgress,
   useTheme,
-  alpha
+  alpha,
+  Switch,
+  FormControlLabel,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import { 
   Send as SendIcon, 
   AttachFile as AttachFileIcon, 
   Mic as MicIcon,
+  MicOff as MicOffIcon,
   SentimentSatisfiedAlt as EmojiIcon,
-  MoreVert as MoreIcon
+  MoreVert as MoreIcon,
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon
 } from '@mui/icons-material';
+import { useAuth } from '../../contexts/AuthContext';
+import { useDarkMode } from '../../contexts/DarkModeContext';
+import axios from 'axios';
 
-// Mock messages for initial display
+// Initial welcome message
 const initialMessages = [
   {
     id: 1,
     sender: 'system',
     content: 'Welcome to Ai-Med Assistant. How can I help you today?',
-    timestamp: new Date(Date.now() - 3600000).toISOString()
-  },
-  {
-    id: 2,
-    sender: 'user',
-    content: 'I need help interpreting my recent blood test results.',
-    timestamp: new Date(Date.now() - 3500000).toISOString()
-  },
-  {
-    id: 3,
-    sender: 'system',
-    content: 'I can help with that. Please share your test results or specific values you\'d like me to explain.',
-    timestamp: new Date(Date.now() - 3400000).toISOString()
+    timestamp: new Date().toISOString()
   }
 ];
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
 export default function ChatPage() {
   const theme = useTheme();
+  const { user } = useAuth();
+  const { darkMode, toggleDarkMode } = useDarkMode();
   const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [notification, setNotification] = useState({ open: false, message: '', severity: 'info' });
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
-  
+  const recognitionRef = useRef<any>(null);
+
   // Scroll to bottom whenever messages change
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
+  // Initialize speech recognition
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = Array.from(event.results)
+          .map((result: any) => result[0])
+          .map((result) => result.transcript)
+          .join('');
+        
+        setInput(transcript);
+      };
+      
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Speech recognition error', event.error);
+        setIsListening(false);
+        setNotification({
+          open: true,
+          message: `Error with speech recognition: ${event.error}`,
+          severity: 'error'
+        });
+      };
+    }
+    
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
   const scrollToBottom = () => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleSendMessage = () => {
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      setNotification({
+        open: true,
+        message: 'Speech recognition is not supported in your browser',
+        severity: 'error'
+      });
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+    } else {
+      try {
+        recognitionRef.current.start();
+      } catch (error) {
+        console.error('Speech recognition error:', error);
+      }
+    }
+    
+    setIsListening(!isListening);
+  };
+
+  const handleSendMessage = async () => {
     if (input.trim() === '') return;
+    
+    // Stop speech recognition if active
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
     
     // Add user message
     const userMessage = {
-      id: messages.length + 1,
+      id: Date.now(),
       sender: 'user',
       content: input,
       timestamp: new Date().toISOString()
     };
-    
-    setMessages([...messages, userMessage]);
+
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
     
     // Simulate AI typing
     setIsTyping(true);
-    
-    // Simulate AI response after delay
-    setTimeout(() => {
+
+    try {
+      // Call the backend API
+      const response = await axios.post(`${API_URL}/api/chat`, {
+        message: input,
+        user_id: user?.id || 'guest'
+      });
+      
       const aiMessage = {
-        id: messages.length + 2,
+        id: Date.now() + 1,
         sender: 'system',
-        content: getAIResponse(input),
+        content: response.data.response || "I'm sorry, I couldn't process your request.",
         timestamp: new Date().toISOString()
       };
       
       setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      
+      // Fallback response in case of API failure
+      const errorMessage = {
+        id: Date.now() + 1,
+        sender: 'system',
+        content: "I'm sorry, I encountered an error while processing your request. Please try again later.",
+        timestamp: new Date().toISOString()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+      
+      setNotification({
+        open: true,
+        message: 'Failed to connect to the chat service',
+        severity: 'error'
+      });
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
   
   // Handle Enter key press
@@ -100,27 +201,14 @@ export default function ChatPage() {
     }
   };
   
-  // Simple mock AI response generator
-  const getAIResponse = (userInput: string) => {
-    const input = userInput.toLowerCase();
-    
-    if (input.includes('blood test') || input.includes('test results')) {
-      return 'To interpret your blood test results properly, I\'d need to see the specific values. Common tests include CBC, metabolic panel, lipid panel, etc. Could you share the specific results or values you\'re concerned about?';
-    } else if (input.includes('headache') || input.includes('pain')) {
-      return 'Headaches can have many causes, including stress, dehydration, lack of sleep, or more serious conditions. How long have you been experiencing this pain, and what are the symptoms? Have you taken any medication for it?';
-    } else if (input.includes('appointment') || input.includes('schedule')) {
-      return 'I can help you schedule an appointment. Please provide your preferred date, time, and doctor or specialty you need to see.';
-    } else if (input.includes('hello') || input.includes('hi')) {
-      return 'Hello! How can I assist you with your medical questions today?';
-    } else {
-      return 'I understand you\'re asking about "' + userInput + '". To give you the best guidance, could you provide more details about your medical concern?';
-    }
-  };
-  
   // Format timestamp
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const handleCloseNotification = () => {
+    setNotification({ ...notification, open: false });
   };
 
   return (
@@ -164,6 +252,9 @@ export default function ChatPage() {
               Online • Responses are not a substitute for professional medical advice
             </Typography>
           </Box>
+          <IconButton onClick={toggleDarkMode} sx={{ mr: 1 }}>
+            {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
+          </IconButton>
           <IconButton>
             <MoreIcon />
           </IconButton>
@@ -181,9 +272,9 @@ export default function ChatPage() {
             backgroundColor: alpha(theme.palette.background.default, 0.5),
           }}
         >
-          {messages.map((message) => (
+              {messages.map((message) => (
             <Box 
-              key={message.id} 
+                  key={message.id}
               sx={{ 
                 alignSelf: message.sender === 'user' ? 'flex-end' : 'flex-start',
                 maxWidth: '70%',
@@ -268,8 +359,12 @@ export default function ChatPage() {
                 }
               }}
             />
-            <IconButton size="small" sx={{ mr: 1 }}>
-              <MicIcon />
+            <IconButton 
+              size="small" 
+              sx={{ mr: 1, color: isListening ? 'error.main' : 'inherit' }}
+              onClick={toggleListening}
+            >
+              {isListening ? <MicOffIcon /> : <MicIcon />}
             </IconButton>
             <Button 
               variant="contained" 
@@ -282,12 +377,18 @@ export default function ChatPage() {
                 px: 3,
                 py: 1,
               }}
-            >
-              Send
+              >
+                Send
             </Button>
           </Box>
         </Box>
       </Paper>
+      
+      <Snackbar open={notification.open} autoHideDuration={6000} onClose={handleCloseNotification}>
+        <Alert onClose={handleCloseNotification} severity={notification.severity as 'error' | 'warning' | 'info' | 'success'} sx={{ width: '100%' }}>
+          {notification.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }

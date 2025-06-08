@@ -24,6 +24,26 @@ class DecisionEngine:
     def __init__(self):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
+        # Initialize condition categories first
+        self.condition_categories = {
+            'respiratory': [],
+            'cardiovascular': [],
+            'neurological': [],
+            'musculoskeletal': [],
+            'gastrointestinal': [],
+            'endocrine': [],
+            'hematological': [],
+            'immunological': [],
+            'dermatological': [],
+            'ophthalmological': [],
+            'otolaryngological': [],
+            'urological': [],
+            'gynecological': [],
+            'pediatric': [],
+            'geriatric': [],
+            'rare_diseases': []
+        }
+        
         # Load condition database
         self.condition_database = self._load_condition_database()
         
@@ -46,26 +66,6 @@ class DecisionEngine:
             'min_confidence': 0.6,
             'max_conditions_to_compare': 10
         }
-        
-        # Initialize condition categories
-        self.condition_categories = {
-            'respiratory': [],
-            'cardiovascular': [],
-            'neurological': [],
-            'musculoskeletal': [],
-            'gastrointestinal': [],
-            'endocrine': [],
-            'hematological': [],
-            'immunological': [],
-            'dermatological': [],
-            'ophthalmological': [],
-            'otolaryngological': [],
-            'urological': [],
-            'gynecological': [],
-            'pediatric': [],
-            'geriatric': [],
-            'rare_diseases': []
-        }
 
     def _load_condition_database(self) -> Dict:
         """Load comprehensive condition database"""
@@ -78,7 +78,8 @@ class DecisionEngine:
             # Categorize conditions
             for condition, data in database.items():
                 category = data.get('category', 'rare_diseases')
-                self.condition_categories[category].append(condition)
+                if category in self.condition_categories:
+                    self.condition_categories[category].append(condition)
             
             return database
         except Exception as e:
