@@ -12,6 +12,7 @@ from ..core.config import settings
 import json
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
+import traceback
 
 from ..models.user import User
 from ..models.analysis import Analysis
@@ -43,28 +44,18 @@ class AnalysisService:
                     # Set up device
                     device = 0 if torch.cuda.is_available() else -1
                     
-                    # Load medical imaging models using HuggingFace token
+                    # Use public models by default
                     model_ids = {
-                        "xray": settings.HF_XRAY_MODEL,
-                        "mri": settings.HF_MRI_MODEL,
-                        "ct": settings.HF_CT_MODEL
+                        "xray": "microsoft/resnet-50",
+                        "mri": "microsoft/resnet-50",
+                        "ct": "microsoft/resnet-50"
                     }
                     
                     for model_type, model_id in model_ids.items():
                         try:
-                            # Use token if available
-                            if settings.HF_TOKEN:
                             self.models[model_type] = pipeline(
                                 "image-classification",
                                 model=model_id,
-                                    device=device,
-                                    token=settings.HF_TOKEN
-                                )
-                            else:
-                                # Fallback to public models if no token
-                                self.models[model_type] = pipeline(
-                                    "image-classification",
-                                    model="microsoft/resnet-50",  # Fallback to public model
                                 device=device
                             )
                             logger.info(f"Loaded {model_type} model successfully")
@@ -246,18 +237,18 @@ class AnalysisService:
             )
     
     async def get_user_analyses(self, 
+                              db: Session,
                               user_id: int,
                               skip: int = 0,
-                              limit: int = 100,
-                              db: Session) -> List[Analysis]:
+                              limit: int = 100) -> List[Analysis]:
         """
         Retrieve analysis history for a user
         
         Args:
+            db: Database session
             user_id: ID of the user
             skip: Number of records to skip (for pagination)
             limit: Maximum number of records to return
-            db: Database session
             
         Returns:
             List of Analysis model instances

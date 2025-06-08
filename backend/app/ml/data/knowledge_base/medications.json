@@ -1,0 +1,202 @@
+{
+    "metformin": {
+        "name": "Metformin",
+        "type": "Biguanide",
+        "category": "Antidiabetic",
+        "uses": ["Type 2 Diabetes"],
+        "mechanism": "Reduces glucose production in liver and improves insulin sensitivity",
+        "dosage": {
+            "initial": "500mg once daily",
+            "maintenance": "500-2000mg daily in divided doses",
+            "maximum": "2550mg daily"
+        },
+        "side_effects": [
+            "Nausea",
+            "Diarrhea",
+            "Abdominal pain",
+            "Metallic taste",
+            "Vitamin B12 deficiency"
+        ],
+        "contraindications": [
+            "Severe kidney disease",
+            "Metabolic acidosis",
+            "Heart failure",
+            "Liver disease"
+        ],
+        "interactions": [
+            "Contrast media",
+            "Alcohol",
+            "Cimetidine",
+            "Topiramate"
+        ],
+        "monitoring": [
+            "Kidney function",
+            "Vitamin B12 levels",
+            "Lactic acid levels"
+        ]
+    },
+    "lisinopril": {
+        "name": "Lisinopril",
+        "type": "ACE Inhibitor",
+        "category": "Antihypertensive",
+        "uses": [
+            "Hypertension",
+            "Heart failure",
+            "Post-myocardial infarction"
+        ],
+        "mechanism": "Inhibits angiotensin-converting enzyme, reducing blood pressure",
+        "dosage": {
+            "initial": "10mg once daily",
+            "maintenance": "10-40mg daily",
+            "maximum": "80mg daily"
+        },
+        "side_effects": [
+            "Dry cough",
+            "Dizziness",
+            "Headache",
+            "Hyperkalemia",
+            "Angioedema"
+        ],
+        "contraindications": [
+            "Pregnancy",
+            "Angioedema history",
+            "Bilateral renal artery stenosis",
+            "Severe kidney disease"
+        ],
+        "interactions": [
+            "Potassium supplements",
+            "NSAIDs",
+            "Lithium",
+            "Aliskiren"
+        ],
+        "monitoring": [
+            "Blood pressure",
+            "Kidney function",
+            "Potassium levels"
+        ]
+    },
+    "prednisone": {
+        "name": "Prednisone",
+        "type": "Corticosteroid",
+        "category": "Anti-inflammatory",
+        "uses": [
+            "Inflammatory conditions",
+            "Autoimmune diseases",
+            "Allergic reactions",
+            "Asthma"
+        ],
+        "mechanism": "Suppresses immune system and reduces inflammation",
+        "dosage": {
+            "initial": "5-60mg daily",
+            "maintenance": "5-10mg daily",
+            "maximum": "100mg daily"
+        },
+        "side_effects": [
+            "Weight gain",
+            "Osteoporosis",
+            "Diabetes",
+            "Hypertension",
+            "Cataracts",
+            "Adrenal suppression"
+        ],
+        "contraindications": [
+            "Systemic fungal infections",
+            "Live vaccines",
+            "Active tuberculosis"
+        ],
+        "interactions": [
+            "NSAIDs",
+            "Anticoagulants",
+            "Antidiabetic drugs",
+            "Vaccines"
+        ],
+        "monitoring": [
+            "Blood glucose",
+            "Blood pressure",
+            "Bone density",
+            "Eye exams"
+        ]
+    },
+    "warfarin": {
+        "name": "Warfarin",
+        "type": "Anticoagulant",
+        "category": "Blood thinner",
+        "uses": [
+            "Atrial fibrillation",
+            "Deep vein thrombosis",
+            "Pulmonary embolism",
+            "Mechanical heart valves"
+        ],
+        "mechanism": "Inhibits vitamin K-dependent clotting factors",
+        "dosage": {
+            "initial": "2-5mg daily",
+            "maintenance": "2-10mg daily",
+            "monitoring": "INR 2.0-3.0"
+        },
+        "side_effects": [
+            "Bleeding",
+            "Bruising",
+            "Hair loss",
+            "Skin necrosis",
+            "Purple toe syndrome"
+        ],
+        "contraindications": [
+            "Active bleeding",
+            "Recent surgery",
+            "Pregnancy",
+            "Severe liver disease"
+        ],
+        "interactions": [
+            "Many medications",
+            "Vitamin K",
+            "Alcohol",
+            "Herbal supplements"
+        ],
+        "monitoring": [
+            "INR",
+            "Complete blood count",
+            "Liver function",
+            "Signs of bleeding"
+        ]
+    },
+    "levothyroxine": {
+        "name": "Levothyroxine",
+        "type": "Thyroid hormone",
+        "category": "Hormone replacement",
+        "uses": [
+            "Hypothyroidism",
+            "Thyroid cancer",
+            "Goiter"
+        ],
+        "mechanism": "Replaces thyroid hormone",
+        "dosage": {
+            "initial": "25-50mcg daily",
+            "maintenance": "50-200mcg daily",
+            "adjustment": "Based on TSH levels"
+        },
+        "side_effects": [
+            "Palpitations",
+            "Insomnia",
+            "Weight loss",
+            "Heat intolerance",
+            "Anxiety"
+        ],
+        "contraindications": [
+            "Hyperthyroidism",
+            "Recent myocardial infarction",
+            "Untreated adrenal insufficiency"
+        ],
+        "interactions": [
+            "Iron supplements",
+            "Calcium supplements",
+            "Soy products",
+            "Many medications"
+        ],
+        "monitoring": [
+            "TSH levels",
+            "T4 levels",
+            "Heart rate",
+            "Weight"
+        ]
+    }
+} 

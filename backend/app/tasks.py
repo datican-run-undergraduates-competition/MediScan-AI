@@ -1,7 +1,7 @@
 import asyncio
 from typing import Dict
 from sqlalchemy.orm import Session
-from . import models, schemas
+from . import models
 from .services.analysis import analysis_service
 import logging
 

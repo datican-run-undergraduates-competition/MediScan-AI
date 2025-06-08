@@ -1,0 +1,16 @@
+{
+    "heart": {
+        "name": "Heart",
+        "description": "Muscular organ that pumps blood through the circulatory system",
+        "location": "Chest cavity",
+        "function": "Blood circulation",
+        "components": ["Atria", "Ventricles", "Valves", "Coronary arteries"]
+    },
+    "lungs": {
+        "name": "Lungs",
+        "description": "Primary organs of the respiratory system",
+        "location": "Chest cavity",
+        "function": "Gas exchange",
+        "components": ["Bronchi", "Bronchioles", "Alveoli"]
+    }
+} 

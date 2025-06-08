@@ -1,0 +1,23 @@
+{
+    "cbc": {
+        "name": "Complete Blood Count",
+        "description": "Blood test that measures different components of blood",
+        "components": ["Red blood cells", "White blood cells", "Platelets", "Hemoglobin"],
+        "normal_ranges": {
+            "rbc": "4.5-5.5 million/µL",
+            "wbc": "4,500-11,000/µL",
+            "platelets": "150,000-450,000/µL",
+            "hemoglobin": "13.5-17.5 g/dL"
+        }
+    },
+    "metabolic_panel": {
+        "name": "Comprehensive Metabolic Panel",
+        "description": "Blood test that measures kidney function, liver function, and electrolyte levels",
+        "components": ["Glucose", "BUN", "Creatinine", "Electrolytes"],
+        "normal_ranges": {
+            "glucose": "70-100 mg/dL",
+            "bun": "7-20 mg/dL",
+            "creatinine": "0.7-1.3 mg/dL"
+        }
+    }
+} 

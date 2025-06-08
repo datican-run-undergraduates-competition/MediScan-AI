@@ -1,5 +1,5 @@
 """
-MediScan AI API Backend
+MediScan AI Application
 """
 
 __version__ = "1.0.0" 

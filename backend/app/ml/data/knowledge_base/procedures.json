@@ -1,0 +1,14 @@
+{
+    "blood_test": {
+        "name": "Blood Test",
+        "description": "Laboratory analysis of blood sample",
+        "preparation": ["Fasting may be required", "Avoid certain medications"],
+        "risks": ["Bruising", "Infection", "Fainting"]
+    },
+    "xray": {
+        "name": "X-Ray Imaging",
+        "description": "Radiographic imaging using X-rays",
+        "preparation": ["Remove metal objects", "Wear lead apron if needed"],
+        "risks": ["Radiation exposure", "Allergic reaction to contrast"]
+    }
+} 

@@ -1,0 +1,261 @@
+{
+    "diabetes": {
+        "name": "Diabetes Mellitus",
+        "types": ["Type 1", "Type 2", "Gestational"],
+        "symptoms": ["Increased thirst", "Frequent urination", "Extreme hunger", "Unexplained weight loss", "Fatigue"],
+        "treatments": ["Insulin therapy", "Oral medications", "Dietary changes", "Exercise"],
+        "risk_factors": ["Family history", "Obesity", "Age", "Physical inactivity"]
+    },
+    "hypertension": {
+        "name": "Hypertension",
+        "description": "High blood pressure",
+        "symptoms": ["Headaches", "Shortness of breath", "Nosebleeds"],
+        "treatments": ["Lifestyle changes", "Medications", "Regular monitoring"],
+        "risk_factors": ["Age", "Family history", "Obesity", "High salt diet"]
+    },
+    "pulmonary_hypertension": {
+        "name": "Pulmonary Hypertension",
+        "category": "Respiratory",
+        "description": "High blood pressure in the arteries of the lungs",
+        "symptoms": [
+            "Shortness of breath",
+            "Chest pain",
+            "Fatigue",
+            "Dizziness",
+            "Swelling in ankles and legs",
+            "Racing heartbeat"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.6,
+            "severe": 0.9
+        },
+        "progression_stages": [
+            {
+                "stage": "Early",
+                "symptoms": ["Mild shortness of breath", "Occasional chest pain"],
+                "severity": "mild"
+            },
+            {
+                "stage": "Intermediate",
+                "symptoms": ["Moderate shortness of breath", "Regular chest pain", "Fatigue"],
+                "severity": "moderate"
+            },
+            {
+                "stage": "Advanced",
+                "symptoms": ["Severe shortness of breath", "Constant chest pain", "Severe fatigue", "Swelling"],
+                "severity": "severe"
+            }
+        ],
+        "recommended_tests": [
+            "Echocardiogram",
+            "Right heart catheterization",
+            "Pulmonary function tests",
+            "Chest X-ray"
+        ],
+        "treatment_options": [
+            {
+                "stage": "mild",
+                "options": ["Lifestyle modifications", "Oral medications"]
+            },
+            {
+                "stage": "moderate",
+                "options": ["Combination therapy", "Regular monitoring"]
+            },
+            {
+                "stage": "severe",
+                "options": ["Advanced medical therapy", "Surgical intervention"]
+            }
+        ]
+    },
+    "multiple_sclerosis": {
+        "name": "Multiple Sclerosis",
+        "category": "Neurological",
+        "description": "Autoimmune disease affecting the central nervous system",
+        "symptoms": [
+            "Vision problems",
+            "Muscle weakness",
+            "Coordination difficulties",
+            "Numbness or tingling",
+            "Fatigue",
+            "Balance problems"
+        ],
+        "severity_levels": {
+            "mild": 0.4,
+            "moderate": 0.7,
+            "severe": 0.9
+        },
+        "progression_stages": [
+            {
+                "stage": "Early",
+                "symptoms": ["Mild vision problems", "Occasional numbness"],
+                "severity": "mild"
+            },
+            {
+                "stage": "Intermediate",
+                "symptoms": ["Moderate muscle weakness", "Regular coordination issues"],
+                "severity": "moderate"
+            },
+            {
+                "stage": "Advanced",
+                "symptoms": ["Severe muscle weakness", "Significant balance problems", "Chronic fatigue"],
+                "severity": "severe"
+            }
+        ],
+        "recommended_tests": [
+            "MRI scan",
+            "Lumbar puncture",
+            "Evoked potential tests",
+            "Blood tests"
+        ],
+        "treatment_options": [
+            {
+                "stage": "mild",
+                "options": ["Disease-modifying medications", "Physical therapy"]
+            },
+            {
+                "stage": "moderate",
+                "options": ["Combination therapy", "Regular monitoring"]
+            },
+            {
+                "stage": "severe",
+                "options": ["Advanced medical therapy", "Rehabilitation"]
+            }
+        ]
+    },
+    "thyroid_disorders": {
+        "name": "Thyroid Disorders",
+        "category": "Endocrine",
+        "description": "Conditions affecting thyroid hormone production",
+        "symptoms": [
+            "Weight changes",
+            "Fatigue",
+            "Temperature sensitivity",
+            "Heart rate changes",
+            "Mood changes",
+            "Hair and skin changes"
+        ],
+        "severity_levels": {
+            "mild": 0.3,
+            "moderate": 0.6,
+            "severe": 0.8
+        },
+        "types": [
+            "Hypothyroidism",
+            "Hyperthyroidism",
+            "Thyroiditis",
+            "Thyroid nodules",
+            "Thyroid cancer"
+        ],
+        "recommended_tests": [
+            "TSH test",
+            "T4 test",
+            "T3 test",
+            "Thyroid antibody test",
+            "Thyroid ultrasound"
+        ],
+        "treatment_options": [
+            {
+                "type": "Hypothyroidism",
+                "options": ["Levothyroxine", "Lifestyle modifications"]
+            },
+            {
+                "type": "Hyperthyroidism",
+                "options": ["Anti-thyroid medications", "Radioactive iodine", "Surgery"]
+            }
+        ]
+    },
+    "crohns_disease": {
+        "name": "Crohn's Disease",
+        "category": "Gastrointestinal",
+        "description": "Chronic inflammatory bowel disease",
+        "symptoms": [
+            "Abdominal pain",
+            "Diarrhea",
+            "Weight loss",
+            "Fatigue",
+            "Fever",
+            "Rectal bleeding"
+        ],
+        "severity_levels": {
+            "mild": 0.4,
+            "moderate": 0.7,
+            "severe": 0.9
+        },
+        "complications": [
+            "Intestinal strictures",
+            "Fistulas",
+            "Abscesses",
+            "Malnutrition",
+            "Colon cancer"
+        ],
+        "recommended_tests": [
+            "Colonoscopy",
+            "Endoscopy",
+            "CT scan",
+            "MRI",
+            "Blood tests"
+        ],
+        "treatment_options": [
+            {
+                "stage": "mild",
+                "options": ["Anti-inflammatory drugs", "Dietary changes"]
+            },
+            {
+                "stage": "moderate",
+                "options": ["Immunosuppressants", "Biologic therapy"]
+            },
+            {
+                "stage": "severe",
+                "options": ["Surgery", "Intensive medical therapy"]
+            }
+        ]
+    },
+    "lupus": {
+        "name": "Systemic Lupus Erythematosus",
+        "category": "Rheumatological",
+        "description": "Autoimmune disease affecting multiple organs",
+        "symptoms": [
+            "Butterfly rash",
+            "Joint pain",
+            "Fatigue",
+            "Fever",
+            "Photosensitivity",
+            "Kidney problems"
+        ],
+        "severity_levels": {
+            "mild": 0.4,
+            "moderate": 0.7,
+            "severe": 0.9
+        },
+        "organ_involvement": [
+            "Skin",
+            "Joints",
+            "Kidneys",
+            "Heart",
+            "Lungs",
+            "Brain"
+        ],
+        "recommended_tests": [
+            "ANA test",
+            "Anti-dsDNA test",
+            "Complete blood count",
+            "Kidney function tests",
+            "Urinalysis"
+        ],
+        "treatment_options": [
+            {
+                "stage": "mild",
+                "options": ["NSAIDs", "Antimalarial drugs", "Sun protection"]
+            },
+            {
+                "stage": "moderate",
+                "options": ["Corticosteroids", "Immunosuppressants"]
+            },
+            {
+                "stage": "severe",
+                "options": ["High-dose corticosteroids", "Biologic therapy", "Plasmapheresis"]
+            }
+        ]
+    }
+} 

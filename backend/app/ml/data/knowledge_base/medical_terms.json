@@ -1,0 +1,22 @@
+{
+    "acute": {
+        "definition": "Sudden onset of symptoms or disease",
+        "example": "Acute appendicitis",
+        "antonym": "Chronic"
+    },
+    "chronic": {
+        "definition": "Long-lasting or persistent condition",
+        "example": "Chronic pain",
+        "antonym": "Acute"
+    },
+    "benign": {
+        "definition": "Not harmful or cancerous",
+        "example": "Benign tumor",
+        "antonym": "Malignant"
+    },
+    "malignant": {
+        "definition": "Harmful or cancerous",
+        "example": "Malignant tumor",
+        "antonym": "Benign"
+    }
+} 

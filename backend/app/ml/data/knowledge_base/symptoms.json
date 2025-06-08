@@ -1,0 +1,14 @@
+{
+    "fever": {
+        "name": "Fever",
+        "description": "Elevated body temperature above normal range",
+        "common_causes": ["Infection", "Inflammation", "Heat exhaustion"],
+        "associated_symptoms": ["Chills", "Sweating", "Headache", "Muscle aches"]
+    },
+    "cough": {
+        "name": "Cough",
+        "description": "Sudden expulsion of air from the lungs",
+        "common_causes": ["Respiratory infection", "Allergies", "Asthma"],
+        "associated_symptoms": ["Sore throat", "Chest pain", "Shortness of breath"]
+    }
+} 

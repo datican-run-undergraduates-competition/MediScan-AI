@@ -1,3 +1,7 @@
+"""
+Database models for the MediScan AI application
+"""
+
 from .user import User, SecurityLog
 from .medical_image import MedicalImage, AnalysisResult, ImageType
 from .medical_report import MedicalReport, ExtractedEntity
