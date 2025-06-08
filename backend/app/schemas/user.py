@@ -14,14 +14,6 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: Optional[str] = None
 
-# Token schema
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class TokenData(BaseModel):
-    username: Optional[str] = None
-
 # Shared properties
 class UserBase(BaseModel):
     email: EmailStr

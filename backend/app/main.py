@@ -10,20 +10,20 @@ from typing import List, Optional
 import os
 from datetime import datetime, timedelta
 import shutil
-from .models.user import User
-from .schemas.user import User as UserSchema, UserCreate
-from .schemas.token import Token
+from app.models.user import User
+from app.schemas.user import User as UserSchema, UserCreate
+from app.schemas.token import Token
 import auth
-from .core.database import engine, get_db
+from app.core.database import engine, get_db
 import json
 import time
 
-from .core.middleware import setup_middlewares
-from .db_init import init as init_database
-from .utils.audit_logger import initialize as init_audit_logger, shutdown as shutdown_audit_logger
-from .api.endpoints import analysis
-from .scheduler import upload_scheduler
-from .middleware.auth import AuthMiddleware
+from app.core.middleware import setup_middlewares
+from app.db_init import init as init_database
+from app.utils.audit_logger import initialize as init_audit_logger, shutdown as shutdown_audit_logger
+from app.api.endpoints import analysis
+from app.scheduler import upload_scheduler
+from app.middleware.auth import AuthMiddleware
 
 # Setup logging
 logging.basicConfig(

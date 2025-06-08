@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, ForeignKey, Text, DateTime
+from sqlalchemy import Column, Integer, ForeignKey, Text, DateTime
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
@@ -8,9 +8,9 @@ class UserPreferences(Base):
     """
     Model for storing user preferences
     """
-    __tablename__ = "user_preferences"
+    __tablename__ = "user_preferences2"
     
-    user_id = Column(String(36), ForeignKey("users.id"), primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     preferences_json = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

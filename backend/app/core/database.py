@@ -12,26 +12,18 @@ try:
 except Exception as e:
     logging.warning(f"Failed to load .env file: {e}")
 
-# Database URL configuration
+# Database URL configuration - Using SQLite for local development
 DATABASE_URL = os.getenv(
     "DATABASE_URL", 
-    "postgresql://postgres:Abioye@16@localhost:5432/ai_med_system"
+    "sqlite:///./ai_med_system.db"
 )
 
 # SQLAlchemy engine configuration
-if DATABASE_URL.startswith("sqlite"):
-    connect_args = {"check_same_thread": False}
-    engine = create_engine(
-        DATABASE_URL, connect_args=connect_args, echo=False
-    )
-else:
-    # For PostgreSQL, MySQL, etc.
-    engine = create_engine(
-        DATABASE_URL, 
-        pool_pre_ping=True, 
-        pool_recycle=3600,
-        echo=False
-    )
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {},
+    echo=False
+)
 
 # Session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
