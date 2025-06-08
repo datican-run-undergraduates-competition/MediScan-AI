@@ -11,7 +11,7 @@ import os
 from datetime import datetime, timedelta
 import shutil
 from app.models.user import User
-from app.schemas.user import User as UserSchema, UserCreate
+from app.schemas.user_clean import User as UserSchema, UserCreate
 from app.schemas.token import Token
 import auth
 from app.core.database import engine, get_db

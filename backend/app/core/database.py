@@ -12,16 +12,21 @@ try:
 except Exception as e:
     logging.warning(f"Failed to load .env file: {e}")
 
-# Database URL configuration - Using SQLite for local development
+# Environment-based configuration
 DATABASE_URL = os.getenv(
     "DATABASE_URL", 
-    "sqlite:///./ai_med_system.db"
+    f"postgresql://{os.getenv('DB_USER', 'postgres')}:"
+    f"{os.getenv('DB_PASSWORD', 'postgres')}@"
+    f"{os.getenv('DB_HOST', 'localhost')}:"
+    f"{os.getenv('DB_PORT', '5432')}/"
+    f"{os.getenv('DB_NAME', 'ai_med_system')}"
 )
-
 # SQLAlchemy engine configuration
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {},
+    pool_pre_ping=True,
+    pool_size=5,
+    max_overflow=10,
     echo=False
 )
 
@@ -54,11 +59,15 @@ def init_db() -> None:
     Initialize the database.
     Creates all tables in the database.
     """
-    # Import all models to ensure they are registered with SQLAlchemy
-    from ..models.user import User, SecurityLog
-    # Create all tables
-    Base.metadata.create_all(bind=engine)
-    logger.info("Database initialized successfully")
+    try:
+        # Import all models to ensure they are registered with SQLAlchemy
+        from ..models.user import User, SecurityLog
+        # Create all tables
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize database: {e}")
+        raise
 
 def check_connection() -> bool:
     """
