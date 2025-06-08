@@ -1,14 +1,233 @@
 {
     "blood_test": {
         "name": "Blood Test",
+        "category": "Laboratory",
         "description": "Laboratory analysis of blood sample",
-        "preparation": ["Fasting may be required", "Avoid certain medications"],
-        "risks": ["Bruising", "Infection", "Fainting"]
+        "types": [
+            "Complete Blood Count (CBC)",
+            "Basic Metabolic Panel",
+            "Comprehensive Metabolic Panel",
+            "Lipid Panel",
+            "Thyroid Function Tests"
+        ],
+        "preparation": [
+            "Fasting may be required",
+            "Avoid certain medications",
+            "Stay hydrated",
+            "Avoid strenuous exercise"
+        ],
+        "procedure": [
+            "Tourniquet application",
+            "Vein selection",
+            "Skin disinfection",
+            "Needle insertion",
+            "Blood collection",
+            "Bandage application"
+        ],
+        "risks": [
+            "Bruising",
+            "Infection",
+            "Fainting",
+            "Hematoma",
+            "Nerve injury"
+        ],
+        "interpretation": {
+            "normal_ranges": {
+                "hemoglobin": "13.5-17.5 g/dL",
+                "white_blood_cells": "4,500-11,000/µL",
+                "platelets": "150,000-450,000/µL",
+                "glucose": "70-100 mg/dL"
+            },
+            "abnormal_indicators": [
+                "Anemia",
+                "Infection",
+                "Bleeding disorders",
+                "Diabetes"
+            ]
+        }
     },
     "xray": {
         "name": "X-Ray Imaging",
+        "category": "Radiology",
         "description": "Radiographic imaging using X-rays",
-        "preparation": ["Remove metal objects", "Wear lead apron if needed"],
-        "risks": ["Radiation exposure", "Allergic reaction to contrast"]
+        "types": [
+            "Chest X-ray",
+            "Bone X-ray",
+            "Dental X-ray",
+            "Mammogram",
+            "Fluoroscopy"
+        ],
+        "preparation": [
+            "Remove metal objects",
+            "Wear lead apron if needed",
+            "Empty bladder if required",
+            "Remove jewelry"
+        ],
+        "procedure": [
+            "Positioning",
+            "Lead protection",
+            "Image acquisition",
+            "Quality check"
+        ],
+        "risks": [
+            "Radiation exposure",
+            "Allergic reaction to contrast",
+            "Pregnancy concerns",
+            "Claustrophobia"
+        ],
+        "interpretation": {
+            "normal_findings": [
+                "Clear lung fields",
+                "Normal heart size",
+                "No fractures",
+                "Normal bone density"
+            ],
+            "abnormal_indicators": [
+                "Pneumonia",
+                "Fractures",
+                "Tumors",
+                "Heart enlargement"
+            ]
+        }
+    },
+    "mri": {
+        "name": "Magnetic Resonance Imaging",
+        "category": "Radiology",
+        "description": "Advanced imaging using magnetic fields and radio waves",
+        "types": [
+            "Brain MRI",
+            "Spine MRI",
+            "Joint MRI",
+            "Cardiac MRI",
+            "Abdominal MRI"
+        ],
+        "preparation": [
+            "Remove all metal objects",
+            "Fasting if required",
+            "Contrast administration if needed",
+            "Change into hospital gown"
+        ],
+        "procedure": [
+            "Positioning",
+            "Coil placement",
+            "Sequence selection",
+            "Image acquisition",
+            "Contrast injection if needed"
+        ],
+        "risks": [
+            "Claustrophobia",
+            "Contrast reaction",
+            "Metal object movement",
+            "Noise exposure"
+        ],
+        "contraindications": [
+            "Pacemaker",
+            "Metal implants",
+            "Pregnancy",
+            "Severe claustrophobia"
+        ],
+        "interpretation": {
+            "normal_findings": [
+                "Normal tissue signal",
+                "No mass effect",
+                "Normal anatomy",
+                "No enhancement"
+            ],
+            "abnormal_indicators": [
+                "Tumors",
+                "Inflammation",
+                "Infection",
+                "Structural abnormalities"
+            ]
+        }
+    },
+    "endoscopy": {
+        "name": "Endoscopy",
+        "category": "Gastroenterology",
+        "description": "Visual examination of internal organs using a flexible tube",
+        "types": [
+            "Upper GI endoscopy",
+            "Colonoscopy",
+            "Bronchoscopy",
+            "Cystoscopy",
+            "Arthroscopy"
+        ],
+        "preparation": [
+            "Fasting",
+            "Bowel preparation",
+            "Medication review",
+            "Anesthesia consultation"
+        ],
+        "procedure": [
+            "Sedation administration",
+            "Scope insertion",
+            "Visual examination",
+            "Biopsy if needed",
+            "Scope removal"
+        ],
+        "risks": [
+            "Bleeding",
+            "Perforation",
+            "Infection",
+            "Reaction to sedation",
+            "Aspiration"
+        ],
+        "interpretation": {
+            "normal_findings": [
+                "Normal mucosa",
+                "No inflammation",
+                "No polyps",
+                "Normal anatomy"
+            ],
+            "abnormal_indicators": [
+                "Ulcers",
+                "Polyps",
+                "Tumors",
+                "Inflammation"
+            ]
+        }
+    },
+    "echocardiogram": {
+        "name": "Echocardiogram",
+        "category": "Cardiology",
+        "description": "Ultrasound examination of the heart",
+        "types": [
+            "Transthoracic echocardiogram",
+            "Transesophageal echocardiogram",
+            "Stress echocardiogram",
+            "Doppler echocardiogram"
+        ],
+        "preparation": [
+            "No special preparation for TTE",
+            "Fasting for TEE",
+            "Medication review",
+            "Remove upper body clothing"
+        ],
+        "procedure": [
+            "Patient positioning",
+            "Gel application",
+            "Probe placement",
+            "Image acquisition",
+            "Doppler measurements"
+        ],
+        "risks": [
+            "Minimal risks for TTE",
+            "Throat discomfort for TEE",
+            "Rare complications for TEE"
+        ],
+        "interpretation": {
+            "normal_findings": [
+                "Normal chamber sizes",
+                "Normal valve function",
+                "Normal wall motion",
+                "Normal ejection fraction"
+            ],
+            "abnormal_indicators": [
+                "Valve disease",
+                "Heart failure",
+                "Cardiomyopathy",
+                "Congenital defects"
+            ]
+        }
     }
 } 

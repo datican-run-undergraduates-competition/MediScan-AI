@@ -10,5 +10,300 @@
         "description": "Sudden expulsion of air from the lungs",
         "common_causes": ["Respiratory infection", "Allergies", "Asthma"],
         "associated_symptoms": ["Sore throat", "Chest pain", "Shortness of breath"]
+    },
+    "chest_pain": {
+        "name": "Chest Pain",
+        "description": "Pain or discomfort in the chest area",
+        "categories": [
+            "Cardiac",
+            "Respiratory",
+            "Gastrointestinal",
+            "Musculoskeletal"
+        ],
+        "characteristics": {
+            "location": [
+                "Center of chest",
+                "Left side",
+                "Right side",
+                "Radiating to arm/jaw"
+            ],
+            "quality": [
+                "Sharp",
+                "Dull",
+                "Pressure",
+                "Burning",
+                "Stabbing"
+            ],
+            "duration": [
+                "Seconds",
+                "Minutes",
+                "Hours",
+                "Days"
+            ],
+            "triggers": [
+                "Exercise",
+                "Stress",
+                "Eating",
+                "Breathing",
+                "Movement"
+            ]
+        },
+        "associated_symptoms": [
+            "Shortness of breath",
+            "Sweating",
+            "Nausea",
+            "Dizziness",
+            "Palpitations"
+        ],
+        "red_flags": [
+            "Severe pain",
+            "Pain with exertion",
+            "Pain radiating to arm/jaw",
+            "Associated with sweating",
+            "Shortness of breath"
+        ],
+        "common_causes": [
+            "Angina",
+            "Heart attack",
+            "Pneumonia",
+            "GERD",
+            "Costochondritis"
+        ]
+    },
+    "shortness_of_breath": {
+        "name": "Shortness of Breath",
+        "description": "Difficulty breathing or feeling of breathlessness",
+        "categories": [
+            "Respiratory",
+            "Cardiac",
+            "Neurological",
+            "Psychological"
+        ],
+        "characteristics": {
+            "onset": [
+                "Sudden",
+                "Gradual",
+                "Exercise-induced",
+                "Position-dependent"
+            ],
+            "severity": [
+                "Mild",
+                "Moderate",
+                "Severe",
+                "At rest"
+            ],
+            "pattern": [
+                "Constant",
+                "Intermittent",
+                "Progressive",
+                "Episodic"
+            ],
+            "triggers": [
+                "Exercise",
+                "Allergens",
+                "Cold air",
+                "Stress",
+                "Lying down"
+            ]
+        },
+        "associated_symptoms": [
+            "Chest pain",
+            "Cough",
+            "Wheezing",
+            "Fatigue",
+            "Anxiety"
+        ],
+        "red_flags": [
+            "Sudden onset",
+            "Severe difficulty",
+            "Chest pain",
+            "Blue lips/fingers",
+            "Confusion"
+        ],
+        "common_causes": [
+            "Asthma",
+            "COPD",
+            "Heart failure",
+            "Anxiety",
+            "Pneumonia"
+        ]
+    },
+    "headache": {
+        "name": "Headache",
+        "description": "Pain in the head or upper neck",
+        "categories": [
+            "Primary",
+            "Secondary",
+            "Tension",
+            "Migraine"
+        ],
+        "characteristics": {
+            "location": [
+                "Frontal",
+                "Temporal",
+                "Occipital",
+                "Unilateral",
+                "Bilateral"
+            ],
+            "quality": [
+                "Throbbing",
+                "Pressure",
+                "Sharp",
+                "Dull",
+                "Band-like"
+            ],
+            "duration": [
+                "Minutes",
+                "Hours",
+                "Days",
+                "Chronic"
+            ],
+            "triggers": [
+                "Stress",
+                "Food",
+                "Sleep",
+                "Hormones",
+                "Environment"
+            ]
+        },
+        "associated_symptoms": [
+            "Nausea",
+            "Sensitivity to light",
+            "Sensitivity to sound",
+            "Visual changes",
+            "Neck pain"
+        ],
+        "red_flags": [
+            "Sudden severe pain",
+            "Fever",
+            "Neck stiffness",
+            "Confusion",
+            "Seizures"
+        ],
+        "common_causes": [
+            "Tension headache",
+            "Migraine",
+            "Sinusitis",
+            "Cluster headache",
+            "Medication overuse"
+        ]
+    },
+    "abdominal_pain": {
+        "name": "Abdominal Pain",
+        "description": "Pain or discomfort in the abdominal area",
+        "categories": [
+            "Gastrointestinal",
+            "Genitourinary",
+            "Gynecological",
+            "Musculoskeletal"
+        ],
+        "characteristics": {
+            "location": [
+                "Upper right",
+                "Upper left",
+                "Lower right",
+                "Lower left",
+                "Central",
+                "Diffuse"
+            ],
+            "quality": [
+                "Cramping",
+                "Sharp",
+                "Dull",
+                "Burning",
+                "Colicky"
+            ],
+            "duration": [
+                "Acute",
+                "Chronic",
+                "Intermittent",
+                "Progressive"
+            ],
+            "triggers": [
+                "Eating",
+                "Movement",
+                "Stress",
+                "Bowel movements"
+            ]
+        },
+        "associated_symptoms": [
+            "Nausea",
+            "Vomiting",
+            "Diarrhea",
+            "Constipation",
+            "Fever"
+        ],
+        "red_flags": [
+            "Severe pain",
+            "Rigid abdomen",
+            "Blood in stool",
+            "Vomiting blood",
+            "Fever with pain"
+        ],
+        "common_causes": [
+            "Gastritis",
+            "Appendicitis",
+            "Gallstones",
+            "Irritable bowel syndrome",
+            "Urinary tract infection"
+        ]
+    },
+    "fatigue": {
+        "name": "Fatigue",
+        "description": "Persistent feeling of tiredness or exhaustion",
+        "categories": [
+            "Physical",
+            "Mental",
+            "Chronic",
+            "Acute"
+        ],
+        "characteristics": {
+            "onset": [
+                "Sudden",
+                "Gradual",
+                "Progressive",
+                "Intermittent"
+            ],
+            "severity": [
+                "Mild",
+                "Moderate",
+                "Severe",
+                "Debilitating"
+            ],
+            "pattern": [
+                "Morning",
+                "Afternoon",
+                "Evening",
+                "Constant"
+            ],
+            "triggers": [
+                "Activity",
+                "Stress",
+                "Sleep",
+                "Diet",
+                "Medications"
+            ]
+        },
+        "associated_symptoms": [
+            "Sleep problems",
+            "Depression",
+            "Anxiety",
+            "Muscle weakness",
+            "Concentration problems"
+        ],
+        "red_flags": [
+            "Sudden onset",
+            "Weight loss",
+            "Fever",
+            "Night sweats",
+            "Severe weakness"
+        ],
+        "common_causes": [
+            "Sleep disorders",
+            "Depression",
+            "Anemia",
+            "Thyroid disorders",
+            "Chronic fatigue syndrome"
+        ]
     }
 } 

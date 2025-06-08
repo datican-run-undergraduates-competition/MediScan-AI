@@ -2,15 +2,220 @@
     "heart": {
         "name": "Heart",
         "description": "Muscular organ that pumps blood through the circulatory system",
-        "location": "Chest cavity",
+        "location": "Chest cavity, slightly left of center",
         "function": "Blood circulation",
-        "components": ["Atria", "Ventricles", "Valves", "Coronary arteries"]
+        "components": {
+            "chambers": [
+                "Right atrium",
+                "Right ventricle",
+                "Left atrium",
+                "Left ventricle"
+            ],
+            "valves": [
+                "Tricuspid valve",
+                "Pulmonary valve",
+                "Mitral valve",
+                "Aortic valve"
+            ],
+            "vessels": [
+                "Superior vena cava",
+                "Inferior vena cava",
+                "Pulmonary arteries",
+                "Pulmonary veins",
+                "Aorta"
+            ],
+            "conduction_system": [
+                "SA node",
+                "AV node",
+                "Bundle of His",
+                "Purkinje fibers"
+            ]
+        },
+        "blood_flow": [
+            "Right atrium → Tricuspid valve → Right ventricle",
+            "Right ventricle → Pulmonary valve → Lungs",
+            "Lungs → Left atrium → Mitral valve → Left ventricle",
+            "Left ventricle → Aortic valve → Body"
+        ],
+        "common_disorders": [
+            "Coronary artery disease",
+            "Heart failure",
+            "Arrhythmias",
+            "Valvular disease"
+        ]
     },
     "lungs": {
         "name": "Lungs",
         "description": "Primary organs of the respiratory system",
-        "location": "Chest cavity",
+        "location": "Chest cavity, on either side of the heart",
         "function": "Gas exchange",
-        "components": ["Bronchi", "Bronchioles", "Alveoli"]
+        "components": {
+            "airways": [
+                "Trachea",
+                "Bronchi",
+                "Bronchioles",
+                "Alveoli"
+            ],
+            "lobes": [
+                "Right lung: 3 lobes",
+                "Left lung: 2 lobes"
+            ],
+            "pleura": [
+                "Visceral pleura",
+                "Parietal pleura",
+                "Pleural cavity"
+            ],
+            "blood_vessels": [
+                "Pulmonary arteries",
+                "Pulmonary veins",
+                "Bronchial arteries"
+            ]
+        },
+        "respiratory_process": [
+            "Inhalation: Diaphragm contracts, chest expands",
+            "Air travels through airways",
+            "Gas exchange in alveoli",
+            "Exhalation: Diaphragm relaxes, chest contracts"
+        ],
+        "common_disorders": [
+            "Asthma",
+            "COPD",
+            "Pneumonia",
+            "Lung cancer"
+        ]
+    },
+    "brain": {
+        "name": "Brain",
+        "description": "Central organ of the nervous system",
+        "location": "Skull cavity",
+        "function": "Control center for body functions",
+        "components": {
+            "cerebrum": [
+                "Frontal lobe",
+                "Parietal lobe",
+                "Temporal lobe",
+                "Occipital lobe"
+            ],
+            "cerebellum": [
+                "Balance",
+                "Coordination",
+                "Motor learning"
+            ],
+            "brainstem": [
+                "Midbrain",
+                "Pons",
+                "Medulla oblongata"
+            ],
+            "ventricles": [
+                "Lateral ventricles",
+                "Third ventricle",
+                "Fourth ventricle"
+            ]
+        },
+        "functions": {
+            "frontal_lobe": [
+                "Decision making",
+                "Problem solving",
+                "Personality",
+                "Motor control"
+            ],
+            "parietal_lobe": [
+                "Sensory processing",
+                "Spatial awareness",
+                "Language processing"
+            ],
+            "temporal_lobe": [
+                "Memory",
+                "Hearing",
+                "Language comprehension"
+            ],
+            "occipital_lobe": [
+                "Vision processing",
+                "Visual recognition"
+            ]
+        },
+        "common_disorders": [
+            "Stroke",
+            "Alzheimer's disease",
+            "Epilepsy",
+            "Brain tumors"
+        ]
+    },
+    "liver": {
+        "name": "Liver",
+        "description": "Largest internal organ, vital for metabolism",
+        "location": "Upper right abdomen",
+        "function": "Metabolic processing and detoxification",
+        "components": {
+            "lobes": [
+                "Right lobe",
+                "Left lobe",
+                "Caudate lobe",
+                "Quadrate lobe"
+            ],
+            "blood_vessels": [
+                "Hepatic artery",
+                "Portal vein",
+                "Hepatic veins"
+            ],
+            "bile_system": [
+                "Bile ducts",
+                "Gallbladder",
+                "Common bile duct"
+            ]
+        },
+        "functions": [
+            "Protein synthesis",
+            "Detoxification",
+            "Bile production",
+            "Glucose regulation",
+            "Vitamin storage"
+        ],
+        "common_disorders": [
+            "Hepatitis",
+            "Cirrhosis",
+            "Liver cancer",
+            "Fatty liver disease"
+        ]
+    },
+    "kidneys": {
+        "name": "Kidneys",
+        "description": "Paired organs that filter blood and produce urine",
+        "location": "Posterior abdomen, on either side of spine",
+        "function": "Blood filtration and fluid balance",
+        "components": {
+            "nephron": [
+                "Glomerulus",
+                "Bowman's capsule",
+                "Proximal tubule",
+                "Loop of Henle",
+                "Distal tubule",
+                "Collecting duct"
+            ],
+            "blood_vessels": [
+                "Renal artery",
+                "Renal vein",
+                "Afferent arterioles",
+                "Efferent arterioles"
+            ],
+            "collecting_system": [
+                "Renal pelvis",
+                "Ureter",
+                "Bladder"
+            ]
+        },
+        "functions": [
+            "Blood filtration",
+            "Fluid balance",
+            "Electrolyte regulation",
+            "Acid-base balance",
+            "Hormone production"
+        ],
+        "common_disorders": [
+            "Kidney stones",
+            "Kidney failure",
+            "Glomerulonephritis",
+            "Polycystic kidney disease"
+        ]
     }
 } 

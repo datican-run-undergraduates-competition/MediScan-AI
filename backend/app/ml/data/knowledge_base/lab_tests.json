@@ -1,23 +1,328 @@
 {
-    "cbc": {
-        "name": "Complete Blood Count",
-        "description": "Blood test that measures different components of blood",
-        "components": ["Red blood cells", "White blood cells", "Platelets", "Hemoglobin"],
-        "normal_ranges": {
-            "rbc": "4.5-5.5 million/µL",
-            "wbc": "4,500-11,000/µL",
-            "platelets": "150,000-450,000/µL",
-            "hemoglobin": "13.5-17.5 g/dL"
+    "complete_blood_count": {
+        "name": "Complete Blood Count (CBC)",
+        "description": "Comprehensive blood test that measures various components of blood",
+        "category": "Hematology",
+        "components": {
+            "red_blood_cells": {
+                "name": "Red Blood Cells (RBC)",
+                "normal_range": "4.5-5.5 million/µL",
+                "units": "million/µL",
+                "purpose": "Measure oxygen-carrying capacity",
+                "abnormal_conditions": {
+                    "high": [
+                        "Polycythemia",
+                        "Dehydration",
+                        "Lung disease"
+                    ],
+                    "low": [
+                        "Anemia",
+                        "Blood loss",
+                        "Bone marrow disorders"
+                    ]
+                }
+            },
+            "white_blood_cells": {
+                "name": "White Blood Cells (WBC)",
+                "normal_range": "4,500-11,000/µL",
+                "units": "/µL",
+                "purpose": "Measure immune system function",
+                "abnormal_conditions": {
+                    "high": [
+                        "Infection",
+                        "Inflammation",
+                        "Leukemia"
+                    ],
+                    "low": [
+                        "Bone marrow suppression",
+                        "Autoimmune disorders",
+                        "Viral infections"
+                    ]
+                }
+            },
+            "platelets": {
+                "name": "Platelets",
+                "normal_range": "150,000-450,000/µL",
+                "units": "/µL",
+                "purpose": "Measure blood clotting ability",
+                "abnormal_conditions": {
+                    "high": [
+                        "Inflammation",
+                        "Iron deficiency",
+                        "Cancer"
+                    ],
+                    "low": [
+                        "Bleeding disorders",
+                        "Bone marrow disorders",
+                        "Autoimmune conditions"
+                    ]
+                }
+            },
+            "hemoglobin": {
+                "name": "Hemoglobin",
+                "normal_range": "13.5-17.5 g/dL",
+                "units": "g/dL",
+                "purpose": "Measure oxygen-carrying protein",
+                "abnormal_conditions": {
+                    "high": [
+                        "Dehydration",
+                        "Polycythemia",
+                        "Lung disease"
+                    ],
+                    "low": [
+                        "Anemia",
+                        "Blood loss",
+                        "Nutritional deficiencies"
+                    ]
+                }
+            },
+            "hematocrit": {
+                "name": "Hematocrit",
+                "normal_range": "38.8-50%",
+                "units": "%",
+                "purpose": "Measure percentage of blood volume occupied by red blood cells",
+                "abnormal_conditions": {
+                    "high": [
+                        "Dehydration",
+                        "Polycythemia",
+                        "Lung disease"
+                    ],
+                    "low": [
+                        "Anemia",
+                        "Blood loss",
+                        "Nutritional deficiencies"
+                    ]
+                }
+            }
+        },
+        "preparation": [
+            "Fasting not required",
+            "Avoid strenuous exercise",
+            "Stay hydrated"
+        ],
+        "interpretation": {
+            "normal": "All components within reference ranges",
+            "abnormal": "Any component outside reference ranges",
+            "critical": "Severe abnormalities requiring immediate attention"
         }
     },
-    "metabolic_panel": {
-        "name": "Comprehensive Metabolic Panel",
+    "comprehensive_metabolic_panel": {
+        "name": "Comprehensive Metabolic Panel (CMP)",
         "description": "Blood test that measures kidney function, liver function, and electrolyte levels",
-        "components": ["Glucose", "BUN", "Creatinine", "Electrolytes"],
-        "normal_ranges": {
-            "glucose": "70-100 mg/dL",
-            "bun": "7-20 mg/dL",
-            "creatinine": "0.7-1.3 mg/dL"
+        "category": "Chemistry",
+        "components": {
+            "glucose": {
+                "name": "Glucose",
+                "normal_range": "70-100 mg/dL",
+                "units": "mg/dL",
+                "purpose": "Measure blood sugar levels",
+                "abnormal_conditions": {
+                    "high": [
+                        "Diabetes",
+                        "Stress",
+                        "Cushing's syndrome"
+                    ],
+                    "low": [
+                        "Hypoglycemia",
+                        "Liver disease",
+                        "Insulin overdose"
+                    ]
+                }
+            },
+            "kidney_function": {
+                "name": "Kidney Function Tests",
+                "components": {
+                    "creatinine": {
+                        "normal_range": "0.7-1.3 mg/dL",
+                        "units": "mg/dL"
+                    },
+                    "bun": {
+                        "normal_range": "7-20 mg/dL",
+                        "units": "mg/dL"
+                    },
+                    "egfr": {
+                        "normal_range": ">60 mL/min/1.73m²",
+                        "units": "mL/min/1.73m²"
+                    }
+                },
+                "abnormal_conditions": {
+                    "high": [
+                        "Kidney disease",
+                        "Dehydration",
+                        "Heart failure"
+                    ],
+                    "low": [
+                        "Malnutrition",
+                        "Liver disease",
+                        "Pregnancy"
+                    ]
+                }
+            },
+            "liver_function": {
+                "name": "Liver Function Tests",
+                "components": {
+                    "alt": {
+                        "normal_range": "7-56 U/L",
+                        "units": "U/L"
+                    },
+                    "ast": {
+                        "normal_range": "10-40 U/L",
+                        "units": "U/L"
+                    },
+                    "alkaline_phosphatase": {
+                        "normal_range": "44-147 U/L",
+                        "units": "U/L"
+                    },
+                    "bilirubin": {
+                        "normal_range": "0.1-1.2 mg/dL",
+                        "units": "mg/dL"
+                    }
+                },
+                "abnormal_conditions": {
+                    "high": [
+                        "Liver disease",
+                        "Bile duct obstruction",
+                        "Muscle damage"
+                    ],
+                    "low": [
+                        "Malnutrition",
+                        "Vitamin deficiency",
+                        "Thyroid disorders"
+                    ]
+                }
+            },
+            "electrolytes": {
+                "name": "Electrolytes",
+                "components": {
+                    "sodium": {
+                        "normal_range": "135-145 mEq/L",
+                        "units": "mEq/L"
+                    },
+                    "potassium": {
+                        "normal_range": "3.5-5.0 mEq/L",
+                        "units": "mEq/L"
+                    },
+                    "chloride": {
+                        "normal_range": "98-106 mEq/L",
+                        "units": "mEq/L"
+                    },
+                    "co2": {
+                        "normal_range": "23-29 mEq/L",
+                        "units": "mEq/L"
+                    }
+                },
+                "abnormal_conditions": {
+                    "high": [
+                        "Dehydration",
+                        "Kidney disease",
+                        "Adrenal disorders"
+                    ],
+                    "low": [
+                        "Diarrhea",
+                        "Vomiting",
+                        "Kidney disease"
+                    ]
+                }
+            }
+        },
+        "preparation": [
+            "Fasting for 8-12 hours",
+            "Avoid alcohol",
+            "Stay hydrated"
+        ],
+        "interpretation": {
+            "normal": "All components within reference ranges",
+            "abnormal": "Any component outside reference ranges",
+            "critical": "Severe abnormalities requiring immediate attention"
+        }
+    },
+    "lipid_panel": {
+        "name": "Lipid Panel",
+        "description": "Blood test that measures cholesterol and triglycerides",
+        "category": "Chemistry",
+        "components": {
+            "total_cholesterol": {
+                "name": "Total Cholesterol",
+                "normal_range": "<200 mg/dL",
+                "units": "mg/dL",
+                "purpose": "Measure total cholesterol levels",
+                "abnormal_conditions": {
+                    "high": [
+                        "Hypercholesterolemia",
+                        "Hypothyroidism",
+                        "Liver disease"
+                    ],
+                    "low": [
+                        "Malnutrition",
+                        "Hyperthyroidism",
+                        "Liver disease"
+                    ]
+                }
+            },
+            "hdl_cholesterol": {
+                "name": "HDL Cholesterol",
+                "normal_range": ">40 mg/dL",
+                "units": "mg/dL",
+                "purpose": "Measure good cholesterol levels",
+                "abnormal_conditions": {
+                    "high": [
+                        "Regular exercise",
+                        "Healthy diet",
+                        "Genetic factors"
+                    ],
+                    "low": [
+                        "Poor diet",
+                        "Smoking",
+                        "Obesity"
+                    ]
+                }
+            },
+            "ldl_cholesterol": {
+                "name": "LDL Cholesterol",
+                "normal_range": "<100 mg/dL",
+                "units": "mg/dL",
+                "purpose": "Measure bad cholesterol levels",
+                "abnormal_conditions": {
+                    "high": [
+                        "Poor diet",
+                        "Genetic factors",
+                        "Hypothyroidism"
+                    ],
+                    "low": [
+                        "Healthy diet",
+                        "Medications",
+                        "Hyperthyroidism"
+                    ]
+                }
+            },
+            "triglycerides": {
+                "name": "Triglycerides",
+                "normal_range": "<150 mg/dL",
+                "units": "mg/dL",
+                "purpose": "Measure fat levels in blood",
+                "abnormal_conditions": {
+                    "high": [
+                        "Poor diet",
+                        "Obesity",
+                        "Diabetes"
+                    ],
+                    "low": [
+                        "Malnutrition",
+                        "Hyperthyroidism",
+                        "Liver disease"
+                    ]
+                }
+            }
+        },
+        "preparation": [
+            "Fasting for 12-14 hours",
+            "Avoid alcohol",
+            "Avoid fatty foods"
+        ],
+        "interpretation": {
+            "normal": "All components within reference ranges",
+            "abnormal": "Any component outside reference ranges",
+            "critical": "Severe abnormalities requiring immediate attention"
         }
     }
 } 

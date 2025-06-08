@@ -1,22 +1,242 @@
 {
     "acute": {
+        "term": "Acute",
         "definition": "Sudden onset of symptoms or disease",
-        "example": "Acute appendicitis",
-        "antonym": "Chronic"
+        "category": "Time Course",
+        "examples": [
+            "Acute appendicitis",
+            "Acute myocardial infarction",
+            "Acute respiratory failure"
+        ],
+        "related_terms": [
+            "Chronic",
+            "Subacute",
+            "Sudden onset"
+        ],
+        "clinical_significance": "Requires immediate attention and treatment"
     },
     "chronic": {
+        "term": "Chronic",
         "definition": "Long-lasting or persistent condition",
-        "example": "Chronic pain",
-        "antonym": "Acute"
+        "category": "Time Course",
+        "examples": [
+            "Chronic obstructive pulmonary disease",
+            "Chronic kidney disease",
+            "Chronic pain"
+        ],
+        "related_terms": [
+            "Acute",
+            "Persistent",
+            "Long-term"
+        ],
+        "clinical_significance": "Requires long-term management and monitoring"
     },
     "benign": {
-        "definition": "Not harmful or cancerous",
-        "example": "Benign tumor",
-        "antonym": "Malignant"
+        "term": "Benign",
+        "definition": "Non-cancerous or non-threatening condition",
+        "category": "Disease Nature",
+        "examples": [
+            "Benign prostatic hyperplasia",
+            "Benign tumor",
+            "Benign essential hypertension"
+        ],
+        "related_terms": [
+            "Malignant",
+            "Non-cancerous",
+            "Harmless"
+        ],
+        "clinical_significance": "Generally not life-threatening"
     },
     "malignant": {
-        "definition": "Harmful or cancerous",
-        "example": "Malignant tumor",
-        "antonym": "Benign"
+        "term": "Malignant",
+        "definition": "Cancerous or life-threatening condition",
+        "category": "Disease Nature",
+        "examples": [
+            "Malignant melanoma",
+            "Malignant hypertension",
+            "Malignant tumor"
+        ],
+        "related_terms": [
+            "Benign",
+            "Cancerous",
+            "Metastatic"
+        ],
+        "clinical_significance": "Requires aggressive treatment"
+    },
+    "etiology": {
+        "term": "Etiology",
+        "definition": "Cause or origin of a disease",
+        "category": "Disease Process",
+        "examples": [
+            "Viral etiology",
+            "Genetic etiology",
+            "Environmental etiology"
+        ],
+        "related_terms": [
+            "Pathogenesis",
+            "Cause",
+            "Origin"
+        ],
+        "clinical_significance": "Important for diagnosis and treatment"
+    },
+    "pathogenesis": {
+        "term": "Pathogenesis",
+        "definition": "Development and progression of a disease",
+        "category": "Disease Process",
+        "examples": [
+            "Inflammatory pathogenesis",
+            "Autoimmune pathogenesis",
+            "Infectious pathogenesis"
+        ],
+        "related_terms": [
+            "Etiology",
+            "Disease progression",
+            "Mechanism"
+        ],
+        "clinical_significance": "Understanding disease development"
+    },
+    "prognosis": {
+        "term": "Prognosis",
+        "definition": "Predicted outcome of a disease",
+        "category": "Disease Outcome",
+        "examples": [
+            "Good prognosis",
+            "Poor prognosis",
+            "Guarded prognosis"
+        ],
+        "related_terms": [
+            "Outcome",
+            "Prediction",
+            "Forecast"
+        ],
+        "clinical_significance": "Helps in treatment planning"
+    },
+    "remission": {
+        "term": "Remission",
+        "definition": "Period of disease inactivity",
+        "category": "Disease State",
+        "examples": [
+            "Cancer remission",
+            "Autoimmune disease remission",
+            "Inflammatory disease remission"
+        ],
+        "related_terms": [
+            "Relapse",
+            "Recovery",
+            "Disease-free"
+        ],
+        "clinical_significance": "Positive treatment outcome"
+    },
+    "relapse": {
+        "term": "Relapse",
+        "definition": "Return of disease after remission",
+        "category": "Disease State",
+        "examples": [
+            "Cancer relapse",
+            "Depression relapse",
+            "Addiction relapse"
+        ],
+        "related_terms": [
+            "Remission",
+            "Recurrence",
+            "Exacerbation"
+        ],
+        "clinical_significance": "Requires treatment adjustment"
+    },
+    "symptom": {
+        "term": "Symptom",
+        "definition": "Subjective evidence of disease",
+        "category": "Clinical Presentation",
+        "examples": [
+            "Pain",
+            "Fatigue",
+            "Nausea"
+        ],
+        "related_terms": [
+            "Sign",
+            "Complaint",
+            "Manifestation"
+        ],
+        "clinical_significance": "Patient-reported findings"
+    },
+    "sign": {
+        "term": "Sign",
+        "definition": "Objective evidence of disease",
+        "category": "Clinical Presentation",
+        "examples": [
+            "Fever",
+            "Rash",
+            "Swelling"
+        ],
+        "related_terms": [
+            "Symptom",
+            "Finding",
+            "Manifestation"
+        ],
+        "clinical_significance": "Clinician-observed findings"
+    },
+    "syndrome": {
+        "term": "Syndrome",
+        "definition": "Group of symptoms and signs that occur together",
+        "category": "Clinical Presentation",
+        "examples": [
+            "Metabolic syndrome",
+            "Down syndrome",
+            "Cushing's syndrome"
+        ],
+        "related_terms": [
+            "Disease",
+            "Condition",
+            "Disorder"
+        ],
+        "clinical_significance": "Characteristic pattern of findings"
+    },
+    "diagnosis": {
+        "term": "Diagnosis",
+        "definition": "Identification of a disease",
+        "category": "Clinical Process",
+        "examples": [
+            "Differential diagnosis",
+            "Clinical diagnosis",
+            "Laboratory diagnosis"
+        ],
+        "related_terms": [
+            "Prognosis",
+            "Treatment",
+            "Assessment"
+        ],
+        "clinical_significance": "Essential for treatment planning"
+    },
+    "treatment": {
+        "term": "Treatment",
+        "definition": "Medical intervention for a condition",
+        "category": "Clinical Process",
+        "examples": [
+            "Medical treatment",
+            "Surgical treatment",
+            "Physical therapy"
+        ],
+        "related_terms": [
+            "Therapy",
+            "Intervention",
+            "Management"
+        ],
+        "clinical_significance": "Aimed at improving condition"
+    },
+    "prophylaxis": {
+        "term": "Prophylaxis",
+        "definition": "Preventive treatment",
+        "category": "Clinical Process",
+        "examples": [
+            "Antibiotic prophylaxis",
+            "Vaccination",
+            "Preventive measures"
+        ],
+        "related_terms": [
+            "Prevention",
+            "Protection",
+            "Precaution"
+        ],
+        "clinical_significance": "Prevents disease occurrence"
     }
 } 
